@@ -1,4 +1,4 @@
-# Copyright (C) 2018 SUSE LLC
+# Copyright (C) 2018-2021 SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,7 +50,12 @@ sub run {
     ensure_generated_file($xccdf_result);
     prepare_remediate_validation;
 
-    validate_script_output "oscap xccdf remediate --results $remediate_result $xccdf_result", sub { $remediate_match };
+    record_info("FYI:", "===$remediate_match====");
+    validate_script_output "oscap xccdf remediate --results $remediate_result $xccdf_result", sub { "$remediate_match" };
+    validate_script_output "echo 'E: oscap: DESC failed to unluck: Success'", sub { m/
+              Rule.*no_direct_root_logins.*Result.*fixed.*
+              Rule.*rule_misc_sysrq.*Result.*fixed/sxx };
+    #validate_script_output "oscap xccdf remediate --results $remediate_result $xccdf_result", sub { $remediate_match };
     validate_result($remediate_result, $remediate_result_match);
 
     # Verify the remediate action result

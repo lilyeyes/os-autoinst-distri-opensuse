@@ -36,6 +36,18 @@ sub run {
     if (is_opensuse) {
         assert_script_run "sed -i 's#cpe:/o:suse#cpe:/o:opensuse#g' xccdf.xml";
     }
+       my $remediate_match = 'm/
+              Rule.*no_direct_root_logins.*Result.*fixed.*
+              Rule.*rule_misc_sysrq.*Result.*fixed/sxx';
+
+   record_info("FYI:", "===$remediate_match====");
+
+    validate_script_output "echo hello", sub { "$remediate_match" };
+    validate_script_output "echo $remediate_match", sub { "$remediate_match" };
+    validate_script_output "echo 'E: oscap: DESC failed to unluck: Success'", sub { m/
+              Rule.*no_direct_root_logins.*Result.*fixed.*
+              Rule.*rule_misc_sysrq.*Result.*fixed/sxx };
+
 }
 
 sub test_flags {
