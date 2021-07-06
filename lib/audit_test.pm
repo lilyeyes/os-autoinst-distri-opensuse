@@ -34,7 +34,8 @@ our @EXPORT = qw(
 
 our $testdir      = '/tmp/';
 our $code_repo    = get_var('CODE_BASE', 'https://gitlab.suse.de/security/audit-test-sle15/-/archive/master/audit-test-sle15-master.tar');
-our $testfile_tar = 'audit-test-sle15-master';
+our $testfile_tar = 'audit-test-sle15-cc-fix';
+#our $testfile_tar = 'audit-test-sle15-master';
 our $mode         = get_var('MODE', 64);
 
 # $current_file: current output file name; $baseline_file: baseline file name
@@ -42,13 +43,26 @@ our $current_file  = 'run.log';
 our $baseline_file = 'baseline_run.log';
 
 # Run the specific test case
-# input: $testcase - test case name (the actual test case name in 'audit-test' test suite, etc)
+# input: $testcase - test case name (the actual test case name is in corresponding 'audit-test' test suite,
+# e.g. "kvm", 'audit-tools', 'syscalls')
 sub run_testcase {
     my ($testcase, %args) = @_;
 
-    # Run test case
+    # Change to the test case directory
     assert_script_run("cd ${testdir}${testfile_tar}/audit-test/${testcase}/");
-    assert_script_run('./run.bash', %args);
+
+    my $timeout = 30;
+    if ($args{timeout}) {
+        $timeout = $args{timeout};
+    }
+
+    # Make test case
+    if ($args{make} == 1) {
+        assert_script_run('make', $timeout);
+    }
+
+    # Run test case
+    assert_script_run('./run.bash', $timeout);
 
     # Upload logs
     upload_logs("$current_file");
@@ -108,15 +122,15 @@ sub compare_run_log {
             if ($testcase_list_current[$i] !~ m/PASS/ && "$testcase_list_current[$i]" ne "$testcase_list_baseline[$i]") {
                 record_info(
                     'Not Same',
-                    "Current testing results are not same with baseline! FYI:\n\"Baseline\"=$testcase_list_baseline[$i]\" Current\"=$testcase_list_current[$i]"
+                    "Current testing results are not same as baseline! FYI:\n\"Baseline\"=$testcase_list_baseline[$i]\" Current\"=$testcase_list_current[$i]"
                 );
                 $result = 'fail';
             }
         }
     }
     if ($result eq 'ok') {
-        # Current run.log is the same with baseline_run.log
-        record_info('Same', 'Current testing results are the same with baseline');
+        # Current run.log is the same as baseline_run.log
+        record_info('Same', 'Current testing results are the same as baseline');
     }
     return $result;
 }

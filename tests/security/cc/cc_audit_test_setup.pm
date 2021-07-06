@@ -41,6 +41,9 @@ sub run {
     # Install audit packages
     zypper_call('in audit audit-audispd-plugins');
 
+    # Install certification-sles-eal4: needed by test case `crypto`
+    zypper_call('in certification-sles-eal4');
+
     # Export MODE
     assert_script_run("export MODE=$audit_test::mode");
 
