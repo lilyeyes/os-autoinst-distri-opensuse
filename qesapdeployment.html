@@ -28,7 +28,11 @@
           <li><a href="#qesap_configure_tfvar">qesap_configure_tfvar</a></li>
           <li><a href="#qesap_configure_variables">qesap_configure_variables</a></li>
           <li><a href="#qesap_configure_hanamedia">qesap_configure_hanamedia</a></li>
+          <li><a href="#qesap_sh">qesap_sh</a></li>
+          <li><a href="#qesap_sh_deploy">qesap_sh_deploy</a></li>
+          <li><a href="#qesap_sh_destroy">qesap_sh_destroy</a></li>
           <li><a href="#qesap_execute">qesap_execute</a></li>
+          <li><a href="#qesap_get_inventory">qesap_get_inventory</a></li>
           <li><a href="#qesap_prepare_env">qesap_prepare_env</a></li>
         </ul>
       </li>
@@ -70,8 +74,15 @@
 
 <pre><code>    qesap_upload_logs([failok=1])
 
-    Collect and upload logs present in @log_files.
-    failok - continue even in case upload fails</code></pre>
+    Collect and upload logs present in @log_files.</code></pre>
+
+<dl>
+
+<dt id="FAILOK---used-as-failok-for-the-upload_logs.-continue-even-in-case-upload-fails"><b>FAILOK</b> - used as failok for the upload_logs. continue even in case upload fails</dt>
+<dd>
+
+</dd>
+</dl>
 
 <h3 id="qesap_get_deployment_code">qesap_get_deployment_code</h3>
 
@@ -106,6 +117,10 @@
 
 </dd>
 <dt id="OS_VERSION---string-for-the-OS-version-to-be-used-for-the-deployed-machine.-Used-for-OSVER"><b>OS_VERSION</b> - string for the OS version to be used for the deployed machine. Used for %OSVER%</dt>
+<dd>
+
+</dd>
+<dt id="SSH_KEY---Public-key-needed-in-tfvars"><b>SSH_KEY</b> - Public key needed in tfvars</dt>
 <dd>
 
 </dd>
@@ -147,6 +162,18 @@
 </dd>
 </dl>
 
+<h3 id="qesap_sh">qesap_sh</h3>
+
+<p>Generic handler for any qe-sap-deployment .sh scripts: calls and publish all the logs</p>
+
+<h3 id="qesap_sh_deploy">qesap_sh_deploy</h3>
+
+<p>Call build.sh and publish all the logs</p>
+
+<h3 id="qesap_sh_destroy">qesap_sh_destroy</h3>
+
+<p>Call destroy.sh and publish all the logs</p>
+
 <h3 id="qesap_execute">qesap_execute</h3>
 
 <pre><code>    qesap_execute(cmd =&gt; $qesap_script_cmd [, verbose =&gt; 1] );
@@ -154,9 +181,13 @@
     Execute qesap glue script commands. Check project documentation for available options:
     https://github.com/SUSE/qe-sap-deployment</code></pre>
 
+<h3 id="qesap_get_inventory">qesap_get_inventory</h3>
+
+<pre><code>    Return the path of the generated inventory</code></pre>
+
 <h3 id="qesap_prepare_env">qesap_prepare_env</h3>
 
-<pre><code>    qesap_prepare_env(variables=&gt;{dict with variables});
+<pre><code>    qesap_prepare_env(variables=&gt;{dict with variables}, provider =&gt; &#39;aws&#39;);
 
     Prepare terraform environment.
     - creates file structures
