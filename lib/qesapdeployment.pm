@@ -277,15 +277,9 @@ sub qesap_execute {
     $exec_log .= '.log.txt';
     $exec_log =~ s/[-\s]+/_/g;
 
-    my $qesap_cmd = join(' ', 'python3.9', $paths{deployment_dir} . '/scripts/qesap/qesap.py',
-        $verbose,
-        '-c', $paths{qesap_conf_trgt},
-        '-b', $paths{deployment_dir},
-        $args{cmd},
-        $args{cmd_options},
-        '|& tee -a',
-        $exec_log
-    );
+    my $qesap_cmd = join(' ',
+        'python3.9', $paths{deployment_dir} . '/scripts/qesap/qesap.py',
+        $verbose, '-c', $paths{qesap_conf_trgt}, '-b', $paths{deployment_dir}, $args{cmd}, $args{cmd_options}, '|& tee -a', $exec_log);
 
     push(@log_files, $exec_log);
     record_info('QESAP exec', "Executing: \n$qesap_cmd");
@@ -414,13 +408,7 @@ sub qesap_ansible_cmd {
     $args{user} ||= 'cloudadmin';
     $args{filter} ||= 'all';
 
-    my $ansible_cmd = join(' ',
-        'ansible',
-        $args{filter},
-        '-i', $inventory,
-        '-u', $args{user},
-        '-b', '--become-user=root',
-        '-a', "\"$args{cmd}\"");
+    my $ansible_cmd = join(' ', 'ansible', $args{filter}, '-i', $inventory, '-u', $args{user}, '-b', '--become-user=root', '-a', "\"$args{cmd}\"");
     assert_script_run($ansible_cmd);
 }
 
@@ -469,10 +457,7 @@ sub qesap_ansible_script_output {
     my $local_tmp = $local_path . $local_file;
 
     if (script_run "test -e $pb") {
-        my $cmd = join(' ',
-            'curl', '-v', '-fL',
-            data_url("sles4sap/$pb"),
-            '-o', $pb);
+        my $cmd = join(' ', 'curl', '-v', '-fL', data_url("sles4sap/$pb"), '-o', $pb);
         assert_script_run($cmd);
     }
 
@@ -480,9 +465,7 @@ sub qesap_ansible_script_output {
     push @ansible_cmd, ('-l', $args{host}, '-i', $inventory);
     push @ansible_cmd, ('-u', $args{user});
     push @ansible_cmd, ('-b', '--become-user', 'root') if ($args{root});
-    push @ansible_cmd, ('-e', qq("cmd='$args{cmd}'"),
-        '-e', "out_path='$local_path'",
-        '-e', "out_file='$local_file'");
+    push @ansible_cmd, ('-e', qq("cmd='$args{cmd}'"), '-e', "out_path='$local_path'", '-e', "out_file='$local_file'");
 
     enter_cmd "rm $local_tmp";
     assert_script_run(join(' ', @ansible_cmd));
@@ -499,7 +482,7 @@ sub qesap_ansible_script_output {
 sub qesap_create_aws_credentials {
     my ($key, $secret) = @_;
     my %paths = qesap_get_file_paths();
-    my $credfile = script_output q|awk -F\" '/aws_credentials/ {print $2}' | . $paths{qesap_conf_trgt};
+    my $credfile = script_output q|awk -F ' ' '/aws_credentials/ {print $2}' | . $paths{qesap_conf_trgt};
     save_tmp_file('credentials', "[default]\naws_access_key_id = $key\naws_secret_access_key = $secret\n");
     assert_script_run 'mkdir -p ~/.aws';
     assert_script_run 'curl ' . autoinst_url . "/files/credentials -o $credfile";
