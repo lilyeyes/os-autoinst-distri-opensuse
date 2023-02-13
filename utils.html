@@ -91,6 +91,9 @@
       <li><a href="#test_case-test_case-name-description-result">test_case test_case($name, $description, $result);</a></li>
       <li><a href="#remount_tmp_if_ro">remount_tmp_if_ro</a></li>
       <li><a href="#detect_bsc_1063638">detect_bsc_1063638</a></li>
+      <li><a href="#script_start_io">script_start_io</a></li>
+      <li><a href="#script_finish_io">script_finish_io</a></li>
+      <li><a href="#handle_screen-handle_screen-needles-handler_map-assert-assert-max_loops-max_loops">handle_screen handle_screen($needles, $handler_map [, assert =&gt; $assert] [, max_loops =&gt; $max_loops] [...]);</a></li>
     </ul>
   </li>
 </ul><h1>lib/utils.pm</h1>
@@ -676,6 +679,38 @@ zypper_ar(&#39;https://download.opensuse.org/repositories/devel:/kubic/openSUSE_
 <pre><code>detect_bsc_1063638();</code></pre>
 
 <p>Btrfs maintenance jobs lead to the system being unresponsive and affects SUT&#39;s performance. Not to waste time during investigation of the failures, we would like to detect if such jobs are running, providing a hint why test timed out. This method will create a softfail if such a problem is detected.</p>
+
+<h2 id="script_start_io">script_start_io</h2>
+
+<pre><code>script_start_io($cmd [, %args]);</code></pre>
+
+<p>Start program <code>$cmd</code> in console for interactive input and output. Call <code>script_finish_io()</code> after sending the appropriate exit command to the program. Example usage:</p>
+
+<pre><code>script_start_io(&#39;python3&#39;);
+enter_cmd(&#39;int(&quot;123&quot;)&#39;);
+wait_serial(qr/^123/m) or die &#39;Wrong output&#39;;
+enter_cmd(&#39;int(&quot;123&quot;, 16)&#39;);
+wait_serial(qr/^291/m) or die &#39;Wrong output&#39;;
+enter_cmd(&#39;exit(12)&#39;);
+script_finish_io(exitcode =&gt; [12]);</code></pre>
+
+<p>Set <code>$quiet</code> to avoid recording serial result for the initial command.</p>
+
+<h2 id="script_finish_io">script_finish_io</h2>
+
+<pre><code>script_finish_io([timeout =&gt; $timeout] [, exitcode =&gt; undef]);</code></pre>
+
+<p>Finish interactive session started by <code>script_start_io()</code> and return command exit code. If <code>$exitcodes</code> is set, the command exit code must match one of the values in the given array, otherwise the current test will fail. <code>$timeout</code> controls how long to wait for the interactive command to exit. See <code>script_start_io()</code> for example usage.</p>
+
+<h2 id="handle_screen-handle_screen-needles-handler_map-assert-assert-max_loops-max_loops">handle_screen handle_screen($needles, $handler_map [, assert =&gt; $assert] [, max_loops =&gt; $max_loops] [...]);</h2>
+
+<p>Wait for <code>$needles</code> to appear on screen and then execute the appropriate handler function from <code>$handler_map</code> hash. <code>$needles</code> can be any value accepted by <code>assert_screen()</code> or <code>check_screen()</code>. <code>$assert</code> controls whether failed needle match should trigger test failure (when true, default) or just silently return (when false). <code>$max_loops</code> limits how many needle checks and handler calls can be done (default: count of <code>$needles</code>). Negative <code>$max_loops</code> means unlimited loop count. Any additional keyword arguments will be passed to <code>assert_screen()</code> or <code>check_screen()</code>.</p>
+
+<p><code>$handler_map</code> is a hashref in the format <code>{&quot;needle-tag&quot; =&gt; $handler}</code>. After a successful needle match, all needle tags in <code>$handler_map</code> will be checked and the matching needle must have exactly one of them. It is an error if the needle does not have exactly one handler in <code>$handler_map</code>.</p>
+
+<p><code>handle_screen()</code> will return after <code>$max_loops</code> iterations, or if a handler function returns any value that evaluates to true, or if needle match fails when <code>$assert</code> is false. The return value is the last value returned by a handler function, or undefined if needle match failed.</p>
+
+<p>Note that you may need to set <code>timeout</code> keyword argument if you set <code>$assert</code> to false because <code>check_screen()</code> has <code>$timeout=0</code> by default.</p>
 
 
 </body>
