@@ -1,4 +1,4 @@
-# Copyright 2015-2022 SUSE LLC
+# Copyright 2015-2023 SUSE LLC
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 package utils;
@@ -2099,6 +2099,7 @@ sub file_content_replace {
         my $value = $to_replace{$key};
         $value =~ s/'/'"'"'/g;
         $value =~ s'/'\/'g;
+	$value =~ s/\&/\\\&/g;
         $key =~ s/'/'"'"'/g;
         $key =~ s'/'\/'g;
         assert_script_run(sprintf("sed -E 's/%s/%s/%s' -i %s", $key, $value, $sed_modifier, $filename));
