@@ -39,6 +39,9 @@ our $ha_enabled = set_var_output('HA_CLUSTER', '0') =~ /false|0/i ? 0 : 1;
 
 sub test_flags {
     return {fatal => 1, publiccloud_multi_module => 1};
+    #    return {
+    #    ignore_failure=> 1
+    #};
 }
 
 =head2 set_var_output
@@ -150,6 +153,11 @@ sub create_instance_data {
 
 sub run {
     my ($self, $run_args) = @_;
+
+    if (script_run('! [[ -e /tmp/embargoed ]]')) {
+	$self->result('skip');
+	exit 0;
+    }
 
     # Let's define a workspace for terraform. We use PUBLIC_CLOUD_RESOURCE_GROUP
     # if defined, otherwise we use qesapopenqa

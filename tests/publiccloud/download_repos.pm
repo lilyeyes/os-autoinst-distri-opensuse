@@ -1,6 +1,6 @@
 # SUSE's openQA tests
 #
-# Copyright 2019-2021 SUSE LLC
+# Copyright 2019-2023 SUSE LLC
 # SPDX-License-Identifier: FSFAP
 
 # Summary: Download repositores from the internal server
@@ -60,10 +60,13 @@ sub run {
         my $reject = "'robots.txt,*.ico,*.png,*.gif,*.css,*.js,*.htm*'";
         my $regex = "'s390x\\/|ppc64le\\/|kernel*debuginfo*.rpm|src\\/'";
         my $incident;
+        my $embargoed = 0;
         for my $maintrepo (@repos) {
             $incident = $1 while $maintrepo =~ /\/Maintenance:\/(\d+)/g;
             die "We did not detect incident number for URL \"$maintrepo\". We detected \"$incident\"" unless $incident =~ /\d+/;
             if (is_embargo_update($incident)) {
+                $embargoed = 1;
+                assert_script_run("rm -f /tmp/embargoed; touch /tmp/embargoed");
                 record_info("EMBARGOED", "The repository \"$maintrepo\" belongs to embargoed incident number \"$incident\"");
                 script_run("echo 'The repository \"$maintrepo\" belongs to embargoed incident number \"$incident\"'");
                 next;
@@ -99,6 +102,11 @@ sub run {
         upload_logs('qem_download_status.txt');
         # Failsafe 2: Ensure the repos are not empty (i.e. size >= 100 kB)
         my $size = script_output('du -s ~/repos | awk \'{print$1}\'');
+        # Mark as softfail and exit if embargoed and empty test repositories
+	if ($embargoed && $size < 100) {
+	    record_info('Softfail', 'embargoed', result => 'softfail');
+	    #return;
+	}
         die "Empty test repositories" if ($check_empty_repos && $size < 100);
     }
 
@@ -112,7 +120,9 @@ sub run {
     assert_script_run("cd");
 }
 
-sub post_fail_hook {
+#sub post_fail_hook {
+sub run_post_fail {
+    my ($self) = @_;
     # Do not use `script_run` or `script_output` as the disk might be full
     ## cat > /tmp/scriptH69A2.sh << 'EOT_H69A2'; echo H69A2-$?-
     #> du -s ~/repos
@@ -122,13 +132,19 @@ sub post_fail_hook {
     assert_script_run("du -hs ~/repos || true");
     assert_script_run("find ~/repos/ -name '*.rpm' -exec du -h '{}' \\; | sort -h || true");
     assert_script_run("df -h");
+    if (script_run('! [[ -e /tmp/embargoed ]]')) {
+        $self->{result} = 'softfail';
+	record_info("run-post-softfail");
+	die "555";
+    }
+
 }
 
 sub test_flags {
     return {
         fatal => 1,
-        milestone => 1,
-        publiccloud_multi_module => 1
+	#milestone => 1,
+	#publiccloud_multi_module => 1
     };
 }
 
