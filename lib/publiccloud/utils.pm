@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use testapi;
 use utils;
-use version_utils qw(is_sle is_public_cloud get_version_id);
+use version_utils qw(is_sle is_sles4sap is_public_cloud get_version_id);
 use registration;
 
 our @EXPORT = qw(
@@ -59,16 +59,24 @@ sub register_addon {
     # ssh_add_suseconnect_product($remote, $name, $version, $arch, $params, $timeout, $retries, $delay)
     my ($timeout, $retries, $delay) = (300, 3, 120);
     if ($addon =~ /ltss/) {
-        ssh_add_suseconnect_product($remote, get_addon_fullname($addon), '${VERSION_ID}', $arch, "-r " . get_required_var('SCC_REGCODE_LTSS'), $timeout, $retries, $delay);
-    } elsif (is_sle('<15') && $addon =~ /tcm|wsm|contm|asmm|pcm/) {
+        ssh_add_suseconnect_product(
+            $remote, get_addon_fullname($addon),
+            '${VERSION_ID}', $arch, "-r " . get_required_var('SCC_REGCODE_LTSS'),
+            $timeout, $retries, $delay
+        );
+    }
+    elsif (is_sle('<15') && $addon =~ /tcm|wsm|contm|asmm|pcm/) {
         ssh_add_suseconnect_product($remote, get_addon_fullname($addon), '`echo ${VERSION} | cut -d- -f1`', $arch, '', $timeout, $retries, $delay);
-    } elsif (is_sle('<15') && $addon =~ /sdk|we/) {
+    }
+    elsif (is_sle('<15') && $addon =~ /sdk|we/) {
         ssh_add_suseconnect_product($remote, get_addon_fullname($addon), '${VERSION_ID}', $arch, '', $timeout, $retries, $delay);
-    } else {
+    }
+    else {
         if ($addon =~ /nvidia/i) {
             (my $version = get_version_id(dst_machine => $remote)) =~ s/^(\d+).*/$1/m;
             ssh_add_suseconnect_product($remote, get_addon_fullname($addon), $version, $arch, '', $timeout, $retries, $delay);
-        } else {
+        }
+        else {
             ssh_add_suseconnect_product($remote, get_addon_fullname($addon), undef, $arch, '', $timeout, $retries, $delay);
         }
     }
@@ -85,12 +93,19 @@ sub deregister_addon {
     my ($timeout, $retries, $delay) = (300, 3, 120);
     if ($addon =~ /ltss/) {
         # ssh_remove_suseconnect_product($remote, $name, $version, $arch, $params, $timeout, $retries, $delay)
-        ssh_remove_suseconnect_product($remote, get_addon_fullname($addon), '${VERSION_ID}', $arch, "-r " . get_required_var('SCC_REGCODE_LTSS'), $timeout, $retries, $delay);
-    } elsif (is_sle('<15') && $addon =~ /tcm|wsm|contm|asmm|pcm/) {
+        ssh_remove_suseconnect_product(
+            $remote, get_addon_fullname($addon),
+            '${VERSION_ID}', $arch, "-r " . get_required_var('SCC_REGCODE_LTSS'),
+            $timeout, $retries, $delay
+        );
+    }
+    elsif (is_sle('<15') && $addon =~ /tcm|wsm|contm|asmm|pcm/) {
         ssh_remove_suseconnect_product($remote, get_addon_fullname($addon), '`echo ${VERSION} | cut -d- -f1`', $arch, '', $timeout, $retries, $delay);
-    } elsif (is_sle('<15') && $addon =~ /sdk|we/) {
+    }
+    elsif (is_sle('<15') && $addon =~ /sdk|we/) {
         ssh_remove_suseconnect_product($remote, get_addon_fullname($addon), '${VERSION_ID}', $arch, '', $timeout, $retries, $delay);
-    } else {
+    }
+    else {
         ssh_remove_suseconnect_product($remote, get_addon_fullname($addon), undef, $arch, '', $timeout, $retries, $delay);
     }
     record_info('SUSEConnect time', 'The command SUSEConnect -d ' . get_addon_fullname($addon) . ' took ' . (time() - $cmd_time) . ' seconds.');
@@ -104,6 +119,10 @@ sub registercloudguest {
     my $cmd_time = time();
     # Check what version of registercloudguest binary we use
     $instance->ssh_script_run(cmd => "rpm -qa cloud-regionsrv-client");
+    sleep 9000;
+    if (check_var('PUBLIC_CLOUD_PROVIDER', 'EC2') && is_ondemand() && is_sle('>=15-SP5') && is_sles4sap) {
+        $instance->ssh_script_run(cmd => "sudo SUSEConnect --cleanup");
+    }
     $instance->ssh_script_retry(cmd => "sudo $suseconnect -r $regcode", timeout => 420, retry => 3, delay => 120);
     record_info('registeration time', 'The registration took ' . (time() - $cmd_time) . ' seconds.');
 }
