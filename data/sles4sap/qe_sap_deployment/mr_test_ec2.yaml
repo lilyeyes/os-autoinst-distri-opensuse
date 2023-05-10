@@ -16,6 +16,7 @@ terraform:
     monitoring_os_major_version: "%VERSION%"
     drdb_os_major_version: "%VERSION%"
     netweaver_os_major_version: "%VERSION%"
+    deployment_name: 'default'
 
     # HANA
     hana_cluster_fencing_mechanism: "%FENCING_MECHANISM%"

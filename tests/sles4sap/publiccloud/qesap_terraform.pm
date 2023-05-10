@@ -151,7 +151,8 @@ sub run {
 
     # Let's define a workspace for terraform. We use PUBLIC_CLOUD_RESOURCE_GROUP
     # if defined, otherwise we use qesaposd
-    my $workspace = get_var('PUBLIC_CLOUD_RESOURCE_GROUP', 'qesaposd') . get_current_job_id();
+    #my $workspace = get_var('PUBLIC_CLOUD_RESOURCE_GROUP', 'qesaposd') . get_current_job_id();
+    my $workspace = 'default';
 
     # Select console on the host (not the PC instance) to reset 'TUNNELED',
     # otherwise select_serial_terminal() will be failed

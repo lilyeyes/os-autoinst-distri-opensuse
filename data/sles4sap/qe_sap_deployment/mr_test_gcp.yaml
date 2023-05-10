@@ -9,6 +9,7 @@ terraform:
     private_key: "~/.ssh/id_rsa"
     public_key: "~/.ssh/id_rsa.pub"
     gcp_credentials_file: "/root/google_credentials.json"
+    deployment_name: ''
 
     # HANA
     hana_count: '1'
