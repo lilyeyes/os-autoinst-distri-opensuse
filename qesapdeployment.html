@@ -46,8 +46,10 @@
           <li><a href="#qesap_calculate_az_address_range">qesap_calculate_az_address_range</a></li>
           <li><a href="#qesap_az_vnet_peering">qesap_az_vnet_peering</a></li>
           <li><a href="#qesap_az_vnet_peering_delete">qesap_az_vnet_peering_delete</a></li>
-          <li><a href="#qesap_get_peering_name">qesap_get_peering_name</a></li>
+          <li><a href="#qesap_az_get_peering_name">qesap_az_get_peering_name</a></li>
           <li><a href="#qesap_add_server_to_hosts">qesap_add_server_to_hosts</a></li>
+          <li><a href="#qesap_import_instances">qesap_import_instances</a></li>
+          <li><a href="#qesap_export_instances">qesap_export_instances</a></li>
         </ul>
       </li>
     </ul>
@@ -197,6 +199,14 @@ qesap_prepare_env(cmd=&gt;{string}, provider =&gt; &#39;aws&#39;);</code></pre>
 
 </dd>
 <dt id="HOST_KEYS_CHECK---if-set-add-some-extra-argument-to-the-Ansible-call-to-allow-contacting-hosts-not-in-the-KnownHost-list-yet.-This-enables-the-use-of-this-api-before-the-call-to-qesap.py-ansible"><b>HOST_KEYS_CHECK</b> - if set, add some extra argument to the Ansible call to allow contacting hosts not in the KnownHost list yet. This enables the use of this api before the call to qesap.py ansible</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---default-90-secs"><b>TIMEOUT</b> - default 90 secs</dt>
+<dd>
+
+</dd>
+<dt id="VERBOSE---enable-verbosity-default-is-OFF"><b>VERBOSE</b> - enable verbosity, default is OFF</dt>
 <dd>
 
 </dd>
@@ -387,7 +397,7 @@ the two provided deployments.</code></pre>
 </dd>
 </dl>
 
-<h3 id="qesap_get_peering_name">qesap_get_peering_name</h3>
+<h3 id="qesap_az_get_peering_name">qesap_az_get_peering_name</h3>
 
 <pre><code>Search for all network peering related to both:
  - resource group related to the current job
@@ -419,13 +429,31 @@ empty string if a peering doesn&#39;t exist</code></pre>
 </dd>
 </dl>
 
+<h3 id="qesap_import_instances">qesap_import_instances</h3>
+
+<pre><code>Downloads assets required for re-using infrastructure from previously exported test.
+qesap_import_instances(&lt;$test_id&gt;)</code></pre>
+
+<dl>
+
+<dt id="test_id---OpenQA-test-ID-from-a-test-previously-run-with-QESAP_DEPLOYMENT_IMPORT-1-and-infrastructure-still-being-up-and-running"><b>$test_id</b> - OpenQA test ID from a test previously run with &quot;QESAP_DEPLOYMENT_IMPORT=1&quot; and infrastructure still being up and running</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_export_instances">qesap_export_instances</h3>
+
+<pre><code>Downloads assets required for re-using infrastructure from previously exported test.
+qesap_export_instances()</code></pre>
+
 <h1 id="POD-ERRORS">POD ERRORS</h1>
 
 <p>Hey! <b>The above document had some coding errors, which are explained below:</b></p>
 
 <dl>
 
-<dt id="Around-line-717">Around line 717:</dt>
+<dt id="Around-line-732">Around line 732:</dt>
 <dd>
 
 <p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
