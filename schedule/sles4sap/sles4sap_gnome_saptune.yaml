@@ -14,7 +14,7 @@ vars:
 schedule:
   - boot/boot_to_desktop
   - '{{PC_instance_ssh_interactive_start}}'
-  - sles4sap/saptune/mr_test
+  #- sles4sap/saptune/mr_test
 conditional_schedule:
   PC_instance_ssh_interactive_start:
     PUBLIC_CLOUD_SLES4SAP:
@@ -23,10 +23,9 @@ conditional_schedule:
         - sles4sap/publiccloud/qesap_terraform
         - sles4sap/publiccloud/mr_test_setup_env
         - publiccloud/registration
-        - publiccloud/transfer_repos
-        - publiccloud/patch_and_reboot
         - publiccloud/ssh_interactive_start
         - publiccloud/instance_overview
+        - publiccloud/ssh_interactive_end
     IS_MAINTENANCE:
       '1':
         - sles4sap/publiccloud/qesap_terraform

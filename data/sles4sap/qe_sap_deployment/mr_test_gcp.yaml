@@ -16,14 +16,20 @@ terraform:
     hana_ha_enabled: "%HA_CLUSTER%"
     hana_data_disk_type: "%HANA_DISK_TYPE%"
     hana_log_disk_type: "%HANA_DISK_TYPE%"
+    hana_remote_python: "%ANSIBLE_REMOTE_PYTHON%"
+    iscsi_remote_python: "%ANSIBLE_REMOTE_PYTHON%"
 
 ansible:
   az_storage_account_name: "%HANA_ACCOUNT%"
   az_container_name:  "%HANA_CONTAINER%"
   az_sas_token: "%HANA_TOKEN%"
+  hana_remote_python: "%ANSIBLE_REMOTE_PYTHON%"
+  iscsi_remote_python: "%ANSIBLE_REMOTE_PYTHON%"
   hana_media:
     - "%HANA_SAR%"
     - "%HANA_CLIENT_SAR%"
     - "%HANA_SAPCAR%"
+  create:
+    - add_admin_user_to_sudoers.yaml
   destroy:
     - deregister.yaml

@@ -64,6 +64,8 @@ sub create_playbook_section_list {
     my @playbook_list;
     my @hana_playbook_list;
 
+    # Add add_admin_user_to_sudoers.yaml
+    push @playbook_list, 'add_admin_user_to_sudoers.yaml';
     # Add registration module as first element - "QESAP_SCC_NO_REGISTER" skips scc registration via ansible
     push @playbook_list, 'registration.yaml -e reg_code=' . get_required_var('SCC_REGCODE_SLES4SAP') . " -e email_address=''"
       unless (get_var('QESAP_SCC_NO_REGISTER'));
@@ -175,12 +177,38 @@ sub run {
         record_info 'Instance', join(' ', 'IP: ', $instance->public_ip, 'Name: ', $instance->instance_id);
         $self->{my_instance} = $instance;
         my $expected_hostname = $instance->{instance_id};
-        $instance->wait_for_ssh();
+        $instance->wait_for_ssh(proceed_on_failure => 1);
+	#die 'Timed out while waiting for ssh to be available in the CSP instances' if qesap_wait_for_ssh(host => $instance->public_ip) == -1;
         # Does not fail for some reason.
         my $real_hostname = $instance->run_ssh_command(cmd => 'hostname', username => 'cloudadmin');
         # We expect hostnames reported by terraform to match the actual hostnames in Azure and GCE
         die "Expected hostname $expected_hostname is different than actual hostname [$real_hostname]"
           if ((is_azure || is_gce) && ($expected_hostname ne $real_hostname));
+        my $id = $instance->run_ssh_command(cmd => 'id', username => 'cloudadmin');
+	record_info("id-old-1", $id);
+	sleep 60;
+        my $id = $instance->run_ssh_command(cmd => 'id', username => 'cloudadmin');
+	record_info("id-old-2", $id);
+
+	# testings
+	my $out = $instance->run_ssh_command(cmd => 'journalctl -u google-guest-agent', username => 'cloudadmin', proceed_on_failure => 1);
+	record_info("out-1-journalctl", $out);
+	my $out = $instance->run_ssh_command(cmd => 'systemctl status google-guest-agent', username => 'cloudadmin', proceed_on_failure => 1);
+	record_info("out-2-systemctl", $out);
+	my $out = $instance->run_ssh_command(cmd => 'dmesg', username => 'cloudadmin', proceed_on_failure => 1);
+	record_info("out-3-dmesg", $out);
+    }
+
+    #   if (@$ansible_playbooks) {
+    #    die 'Ansible deployment FAILED. Check "qesap*" logs for details.'
+    #      if (qesap_execute(cmd => 'ansible', timeout => 360, verbose => 1));
+
+    #}
+    foreach my $instance (@$instances) {
+        my $id = $instance->run_ssh_command(cmd => 'id', username => 'cloudadmin');
+        record_info("id-new", $id);
+	my $out = $instance->run_ssh_command(cmd => 'cat /etc/sudoers.d/cloudadmin-sudoer', username => 'cloudadmin', proceed_on_failure => 1);
+	record_info("out-sudoer", $out);
     }
 
     $self->{instances} = $run_args->{instances} = $instances;

@@ -144,7 +144,7 @@ sub _prepare_ssh_cmd {
     my $cmd = $args{cmd};
     unless ($args{no_quote}) {
         $cmd =~ s/'/\'/g;    # Espace ' character
-        $cmd = "\$'$cmd'";
+	$cmd = "\$'$cmd'";
     }
 
     my $ssh_cmd = sprintf('ssh -t %s "%s@%s" -- %s', $args{ssh_opts}, $args{username}, $self->public_ip, $cmd);
@@ -392,10 +392,13 @@ sub wait_for_ssh {
                 $exit_code = 2;
                 last unless $args{ignore_wrong_pubkey};    # ondemand retry
             }
+	    elsif ($sysout =~ m/running/) {    # startup OK
+                $exit_code = 0;
+                $sysout .= "\nSystem successfully booted";
+                last;
+            }
             elsif ($sysout =~ m/initializing|starting/) {    # still starting
                 $exit_code = undef;
-            }
-            elsif ($sysout =~ m/running/) {    # startup OK
                 $exit_code = 0;
                 $sysout .= "\nSystem successfully booted";
                 last;
@@ -410,11 +413,38 @@ sub wait_for_ssh {
             elsif ($sysout =~ m/maintenance|stopping|offline|unknown/) {
                 $exit_code = 1;
                 $sysout .= "\nCan not reach systemd target";
+                record_info("exit_code=$exit_code", $sysout);
                 last;
+            }
+            elsif ($sysout =~ m/password for root/) {    # Instance asks sudo password for root for some reasons
+		my $out = $self->ssh_script_output(cmd => 'id',
+                proceed_on_failure => 1, username => $args{username});
+                record_info("sudo1", $out);
+		#my $out = $self->ssh_script_output(cmd => 'ls -trl /etc/sudoers.d',
+		#proceed_on_failure => 1, username => $args{username});
+		#record_info("sudo2", $out);
+		my $out = $self->ssh_script_output(cmd => 'groups',
+                proceed_on_failure => 1, username => $args{username});
+                record_info("sudo2", $out);
+		record_soft_failure("jsc#TEAM-7911");
+		#sleep 60000;
+                sleep 10;
+
+                $exit_code = 3;
+                $sysout .= "\nInstance asks sudo password for root:\n" .
+                record_info("exit_code=$exit_code", $sysout);
+		#record_info("exp-start");
+		#$self->ssh_script_output(cmd => 'expect -c \"spawn /usr/bin/sudo systemctl is-system-running; expect password {send $testapi::password\\r; interact} default {exit 1}\"',
+		#$self->ssh_script_output(cmd => 'expect -c "spawn /usr/bin/sudo systemctl is-system-running; expect password {send $testapi::password\\r; interact} default {exit 1}"',
+		#$sysout = $self->ssh_script_output(cmd => 'expect -c "spawn /usr/bin/sudo systemctl is-system-running; expect password {send nots3cr3t\\r; interact} default {exit 1}"', proceed_on_failure => 1, username => $args{username});
+		#$sysout = $self->ssh_script_output(cmd => 'expect -c "spawn /usr/bin/sudo systemctl is-system-running; expect password {send nots3cr3t\\\\r; interact} default {exit 1}"', proceed_on_failure => 1, username => $args{username});
+		#$sysout = $self->ssh_script_output(cmd => 'expect -c "spawn /usr/bin/sudo systemctl is-system-running; expect password {send nots3cr3t\\\\r\\\\n; interact} default {exit 1}"', proceed_on_failure => 1, username => $args{username});
+		#record_info("exp-end", $sysout);
             }
             else {    # FAIL: Connection refused or else
                 $exit_code = 2;
                 $sysout .= "\nCan not reach systemd target";
+                record_info("exit_code=$exit_code", $sysout);
                 last unless ($args{proceed_on_failure} or $args{ignore_wrong_pubkey});    # ondemand retry until timeout
             }    # endif
             sleep $delay;
