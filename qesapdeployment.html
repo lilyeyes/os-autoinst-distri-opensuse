@@ -53,6 +53,7 @@
           <li><a href="#qesap_az_get_resource_group">qesap_az_get_resource_group</a></li>
           <li><a href="#qesap_az_calculate_address_range">qesap_az_calculate_address_range</a></li>
           <li><a href="#qesap_az_vnet_peering">qesap_az_vnet_peering</a></li>
+          <li><a href="#qesap_az_simple_peering_delete">qesap_az_simple_peering_delete</a></li>
           <li><a href="#qesap_az_vnet_peering_delete">qesap_az_vnet_peering_delete</a></li>
           <li><a href="#qesap_az_get_peering_name">qesap_az_get_peering_name</a></li>
           <li><a href="#qesap_aws_get_region_subnets">qesap_aws_get_region_subnets</a></li>
@@ -69,8 +70,16 @@
           <li><a href="#qesap_add_server_to_hosts">qesap_add_server_to_hosts</a></li>
           <li><a href="#qesap_import_instances">qesap_import_instances</a></li>
           <li><a href="#qesap_export_instances">qesap_export_instances</a></li>
+          <li><a href="#qesap_is_job_finished">qesap_is_job_finished</a></li>
+          <li><a href="#qesap_az_get_active_peerings">qesap_az_get_active_peerings</a></li>
         </ul>
       </li>
+      <li><a href="#qesap_az_clean_old_peerings">qesap_az_clean_old_peerings</a></li>
+      <li><a href="#qesap_az_setup_native_fencing_permissions">qesap_az_setup_native_fencing_permissions</a></li>
+      <li><a href="#qesap_az_enable_system_assigned_identity">qesap_az_enable_system_assigned_identity</a></li>
+      <li><a href="#qesap_az_assign_role">qesap_az_assign_role</a></li>
+      <li><a href="#qesap_az_get_tenant_id">qesap_az_get_tenant_id</a></li>
+      <li><a href="#qesap_az_validate_uuid_pattern">qesap_az_validate_uuid_pattern</a></li>
     </ul>
   </li>
   <li><a href="#POD-ERRORS">POD ERRORS</a></li>
@@ -208,7 +217,11 @@ Test only returns execution result, failure has to be handled by calling method.
 <dd>
 
 </dd>
-<dt id="TIMEOUT---max-expected-execution-time-back"><b>TIMEOUT</b> - max expected execution time =back</dt>
+<dt id="TIMEOUT---max-expected-execution-time"><b>TIMEOUT</b> - max expected execution time</dt>
+<dd>
+
+</dd>
+<dt id="LOGNAME---filename-of-the-log-file.-This-argument-is-optional-if-not-specified-the-log-filename-is-internally-calculated-using-content-from-CMD-and-CMD_OPTIONS.-back"><b>LOGNAME</b> - filename of the log file. This argument is optional, if not specified the log filename is internally calculated using content from CMD and CMD_OPTIONS. =back</dt>
 <dd>
 
 </dd>
@@ -424,7 +437,7 @@ remotely executed command.</code></pre>
 <dd>
 
 </dd>
-<dt id="TIMEOUT---max-expected-execution-time"><b>TIMEOUT</b> - max expected execution time</dt>
+<dt id="TIMEOUT---max-expected-execution-time1"><b>TIMEOUT</b> - max expected execution time</dt>
 <dd>
 
 </dd>
@@ -626,6 +639,30 @@ the two provided deployments.</code></pre>
 
 </dd>
 <dt id="TIMEOUT---default-is-5-mins"><b>TIMEOUT</b> - default is 5 mins</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_az_simple_peering_delete">qesap_az_simple_peering_delete</h3>
+
+<pre><code>Delete a single peering one way</code></pre>
+
+<dl>
+
+<dt id="RG---Name-of-the-resource-group"><b>RG</b> - Name of the resource group</dt>
+<dd>
+
+</dd>
+<dt id="VNET_NAME---Name-of-the-vnet"><b>VNET_NAME</b> - Name of the vnet</dt>
+<dd>
+
+</dd>
+<dt id="PEERING_NAME---Name-of-the-peering"><b>PEERING_NAME</b> - Name of the peering</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---Optional-Timeout-for-the-script_run-command"><b>TIMEOUT</b> - (Optional) Timeout for the script_run command</dt>
 <dd>
 
 </dd>
@@ -866,31 +903,118 @@ qesap_import_instances(&lt;$test_id&gt;)</code></pre>
 <pre><code>Downloads assets required for re-using infrastructure from previously exported test.
 qesap_export_instances()</code></pre>
 
+<h3 id="qesap_is_job_finished">qesap_is_job_finished</h3>
+
+<pre><code>Get whether a specified job is still running or not</code></pre>
+
+<dl>
+
+<dt id="JOB_ID---id-of-job-to-check"><b>JOB_ID</b> - id of job to check</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_az_get_active_peerings">qesap_az_get_active_peerings</h3>
+
+<pre><code>Get active peerings for Azure jobs</code></pre>
+
+<dl>
+
+<dt id="RG---Resource-group-in-question"><b>RG</b> - Resource group in question</dt>
+<dd>
+
+</dd>
+<dt id="VNET---vnet-name-of-rg"><b>VNET</b> - vnet name of rg</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="qesap_az_clean_old_peerings">qesap_az_clean_old_peerings</h2>
+
+<pre><code>Delete leftover peerings for Azure jobs that finished without cleaning up</code></pre>
+
+<dl>
+
+<dt id="RG---Resource-group-in-question1"><b>RG</b> - Resource group in question</dt>
+<dd>
+
+</dd>
+<dt id="VNET---vnet-name-of-rg1"><b>VNET</b> - vnet name of rg</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="qesap_az_setup_native_fencing_permissions">qesap_az_setup_native_fencing_permissions</h2>
+
+<pre><code>qesap_az_setup_native_fencing_permissions(vmname=&gt;$vm_name,
+    subscription_id=&gt;$subscription_id,
+    resource_group=&gt;$resource_group,
+    role=&gt;$role);
+
+Sets up managed identity (MSI) by enabling system assigned identity and
+    role - role to be assigned
+    resource_group - resource group resource belongs to
+    subscription_id - valid azure subscription</code></pre>
+
+<h2 id="qesap_az_enable_system_assigned_identity">qesap_az_enable_system_assigned_identity</h2>
+
+<pre><code>qesap_az_enable_system_assigned_identity($vm_name, $resource_group);
+
+Enables &#39;System assigned identity&#39; for specified VM.
+Returns &#39;systemAssignedIdentity&#39; ID.</code></pre>
+
+<h2 id="qesap_az_assign_role">qesap_az_assign_role</h2>
+
+<pre><code>qesap_az_assign_role( assignee=&gt;$assignee, role=&gt;$role, subscription_id=&gt;$subscription_id, resource_group=&gt;$resource_group )
+
+Assigns defined role to &#39;assignee&#39; (user, vm, etc...) using subscription id.
+ assignee - UUID for the resource (VM in this case)
+ role - role to be assigned
+ resource_group - resource group resource belongs to
+ subscription_id - valid azure subscription</code></pre>
+
+<h2 id="qesap_az_get_tenant_id">qesap_az_get_tenant_id</h2>
+
+<pre><code>qesap_az_get_tenant_id( subscription_id=&gt;$subscription_id )
+
+Returns tenant ID related to the specified subscription ID.
+subscription_id - valid azure subscription</code></pre>
+
+<h2 id="qesap_az_validate_uuid_pattern">qesap_az_validate_uuid_pattern</h2>
+
+<pre><code>qesap_az_validate_uuid_pattern( uuid_string=&gt;$uuid_string )
+
+Function checks input string against uuid pattern which is commonly used as an identifier for azure resources.
+returns uuid (true) on match, 0 (false) on mismatch.</code></pre>
+
 <h1 id="POD-ERRORS">POD ERRORS</h1>
 
 <p>Hey! <b>The above document had some coding errors, which are explained below:</b></p>
 
 <dl>
 
-<dt id="Around-line-429">Around line 429:</dt>
+<dt id="Around-line-445">Around line 445:</dt>
 <dd>
 
 <p>You forgot a &#39;=back&#39; before &#39;=head3&#39;</p>
 
 </dd>
-<dt id="Around-line-448">Around line 448:</dt>
+<dt id="Around-line-465">Around line 465:</dt>
 <dd>
 
 <p>You forgot a &#39;=back&#39; before &#39;=head3&#39;</p>
 
 </dd>
-<dt id="Around-line-976">Around line 976:</dt>
+<dt id="Around-line-993">Around line 993:</dt>
 <dd>
 
 <p>You forgot a &#39;=back&#39; before &#39;=head3&#39;</p>
 
 </dd>
-<dt id="Around-line-1053">Around line 1053:</dt>
+<dt id="Around-line-1070">Around line 1070:</dt>
 <dd>
 
 <p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
