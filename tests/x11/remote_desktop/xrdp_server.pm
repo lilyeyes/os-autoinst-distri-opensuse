@@ -19,6 +19,7 @@ use base 'opensusebasetest';
 use utils qw(systemctl zypper_call);
 use x11utils qw(handle_login turn_off_gnome_screensaver);
 use version_utils qw(is_sle is_sles4sap is_tumbleweed);
+use Utils::Architectures qw(is_ppc64le);
 
 sub run {
     my ($self) = @_;
@@ -46,12 +47,13 @@ sub run {
 
         # A bug currently exists in SLES4SAP 15-SP1 with firewall not opened
         # during installation (bsc#1125529) - workaround it
-        if (is_sle '=15-sp1') {
+        # if (is_sle '=15-sp1' || is_ppc64le) {
             record_soft_failure('workaround for bsc#1125529');
             # Add rules and reload firewall (firewalld is used in sle15+)
             assert_script_run 'firewall-cmd --zone=public --permanent --add-port=3389/tcp';
             systemctl "reload $firewall";
-        }
+            systemctl 'start xrdp';
+        #}
     }
     else {
         # Install xrdp

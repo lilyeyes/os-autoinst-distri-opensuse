@@ -12,6 +12,9 @@ use strict;
 use warnings;
 use testapi;
 use serial_terminal 'select_serial_terminal';
+use version_utils 'is_sle';
+use power_action_utils 'power_action';
+use utils "zypper_call";
 
 sub test_python3 {
     my ($self) = @_;
@@ -35,6 +38,11 @@ sub run {
 
     # No need to run these tests on the secondary node
     return if get_var('HA_CLUSTER_JOIN');
+
+    zypper_call("ar -f http://download.suse.de/ibs/SUSE:/SLE-15-SP6:/GA/standard/SUSE:SLE-15-SP6:GA.repo");
+    zypper_call("up systemd*");
+    zypper_call("in systemd-sysvcompat");
+    power_action('reboot', textmode => 1);
 
     select_serial_terminal;
 
@@ -76,8 +84,20 @@ sub run {
     my $hdbsql = "hdbsql -j -d $sid -u SYSTEM -i $instance_id -p $sles4sap::instance_password";
     my $output;
     unless (get_var('SKIP_HANADB_QUERY')) {
-        $output = script_output "$hdbsql 'SELECT * FROM DUMMY'";
-        die "hdbsql: failed to query the dummy table\n\n$output" unless ($output =~ /1 row selected/);
+        $output = script_output "$hdbsql 'SELECT * FROM DUMMY'", proceed_on_failure => 1;
+        unless ($output =~ /1 row selected/) {
+            my $report_opt = !is_sle('12-sp4+') ? '-f0' : '';
+            my $crm_log = '/var/log/crm_report';
+	    $self->reset_user_change;
+	    script_run("ss -tulpn > /tmp/ss-output");
+            script_run("journalctl -axb > /tmp/journalctl-output");
+	    script_run "crm report $report_opt -E /var/log/ha-cluster-bootstrap.log $crm_log", 300;
+            upload_logs("/tmp/journalctl-output", failok => 1);
+            upload_logs("/tmp/ss-output", failok => 1);
+            upload_logs("$crm_log.tar.bz2", failok => 1);
+sleep 6000;
+            die "hdbsql: failed to query the dummy table\n\n$output";
+        }
     }
 
     # Run NVDIMM tests if in that scenario and we can test with hdbsql

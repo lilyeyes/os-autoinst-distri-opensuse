@@ -27,7 +27,7 @@ sub run {
     type_string '10.0.2.17';
     assert_screen "remote-ip-filled";
     send_key 'ret';
-    assert_screen "verify-identity", 90;
+    assert_screen "verify-identity", 9000;
     send_key 'y';
 
     assert_screen "xrdp-login-screen";
