@@ -143,14 +143,14 @@ sub run {
 
     # Something very simple, just to check, that LV has RW access to the same offset
     if (is_node(1)) {
-        assert_script_run "dd if=/dev/urandom of=/dev/$vg_name/$lv_name bs=5M count=1 skip=31";
-        assert_script_run "dd if=/dev/$vg_name/$lv_name of=test_file bs=5M count=1 seek=30";
+        assert_script_run "dd if=/dev/urandom of=/dev/$vg_name/$lv_name bs=512 count=1 skip=31";
+        assert_script_run "dd if=/dev/$vg_name/$lv_name of=test_file bs=512 count=1 seek=30";
     }
     else {
         # We can't do this test in active/passive mode
         if ($resource ne 'drbd_passive') {
-            assert_script_run "dd if=/dev/urandom of=/dev/$vg_name/$lv_name bs=5M count=1 skip=30";
-            assert_script_run "dd if=/dev/$vg_name/$lv_name of=test_file bs=5M count=1 seek=31";
+            assert_script_run "dd if=/dev/urandom of=/dev/$vg_name/$lv_name bs=512 count=1 skip=30";
+            assert_script_run "dd if=/dev/$vg_name/$lv_name of=test_file bs=512 count=1 seek=31";
         }
     }
 
