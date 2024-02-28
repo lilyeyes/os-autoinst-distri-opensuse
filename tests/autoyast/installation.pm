@@ -413,6 +413,16 @@ sub test_flags {
 
 sub post_fail_hook {
     my ($self) = shift;
+    my $file = "/var/tmp/hdb_QA0_hdblcm_install_*/hdblcm.log";
+    script_run("ll $file");
+    if (script_run("test -e $file") == 0) {
+        record_info("copy1");
+        upload_logs("$file", timeout => 900);
+    } else {
+        record_info("copy2");
+        script_run("cp $file /tmp/hdblcm.log");
+        upload_logs("/tmp/hdblcm.log", timeout => 900);
+    }
     $self->SUPER::post_fail_hook;
     $self->upload_autoyast_profile;
     $self->upload_autoyast_schema;

@@ -951,6 +951,8 @@ sub post_run_hook {
 sub post_fail_hook {
     my ($self) = @_;
 
+    my $result = script_output('journalctl -xe');
+    record_info("journalctl:$result");
     # Save a screenshot before trying further measures which might fail
     save_screenshot;
 
@@ -1203,6 +1205,12 @@ sub check_iscsi_failure {
     my $csync_fails = script_run 'grep -q "corosync.service: Failed" bsc1129385-check-journal.log';
     my $pcmk_fails = script_run 'grep -E -q "pacemaker.service.+failed" bsc1129385-check-journal.log';
 
+    upload_logs 'bsc1129385-check-journal.log';
+    systemctl 'restart iscsi';
+    #systemctl 'restart sbd';
+    systemctl('stop pacemaker',ignore_failure => 1);
+    systemctl('start pacemaker',ignore_failure => 1);
+    script_run("journalctl -xe");
     # restart and mark as softfailure if all failure conditions are match
     if (defined $iscsi_fails and $iscsi_fails == 0 and defined $csync_fails
         and $csync_fails == 0 and defined $pcmk_fails and $pcmk_fails == 0)

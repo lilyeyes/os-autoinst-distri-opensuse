@@ -27,6 +27,7 @@ sub run {
     check_iscsi_failure;
 
     # Only perform clvm to lvmlockd migration if the cluster is up and has clvm resources
+    sleep 60;
     assert_script_run $crm_mon_cmd;
     my $clvm_rsc = script_run "grep -wq clvm <($crm_mon_cmd)";
     return unless (defined $clvm_rsc and $clvm_rsc == 0);
