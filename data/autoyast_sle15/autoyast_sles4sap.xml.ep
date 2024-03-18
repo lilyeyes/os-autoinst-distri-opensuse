@@ -62,10 +62,6 @@
     </ntp_servers>
     <ntp_sync>15</ntp_sync>
   </ntp-client>
-  <firewall>
-    <enable_firewall config:type="boolean">true</enable_firewall>
-    <start_firewall config:type="boolean">true</start_firewall>
-  </firewall>
   <report>
     <errors>
       <log config:type="boolean">true</log>
@@ -125,11 +121,6 @@
         <arch>{{ARCH}}</arch>
       </addon>
       <addon>
-        <name>sle-module-desktop-applications</name>
-        <version>{{VERSION}}</version>
-        <arch>{{ARCH}}</arch>
-      </addon>
-      <addon>
         <name>sle-module-sap-applications</name>
         <version>{{VERSION}}</version>
         <arch>{{ARCH}}</arch>
@@ -149,12 +140,10 @@
   </suse_register>
   <software>
     <patterns config:type="list">
-      <pattern>gnome_basis</pattern>
       <pattern>base</pattern>
       <pattern>enhanced_base</pattern>
       <pattern>apparmor</pattern>
       <pattern>32bit</pattern>
-      <pattern>yast2_basis</pattern>
       <pattern>fonts</pattern>
       <pattern>x11</pattern>
       <pattern>sap_server</pattern>
