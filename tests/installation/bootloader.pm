@@ -55,6 +55,7 @@ sub run {
     push @params, bootmenu_remote_target;
     push @params, specific_bootmenu_params;
     push @params, registration_bootloader_params(utils::VERY_SLOW_TYPING_SPEED) unless get_var('SLP_RMT_INSTALL') || is_opensuse;
+    push @params, "resume=/dev/disk/by-uuid/430f764b-b310-4ab7-ab16-71700632b277";
     mutex_wait 'support_server_ready' if get_var('USE_SUPPORT_SERVER');
     # on ppc64le boot have to be confirmed with ctrl-x or F10
     # and it doesn't have nice graphical menu with video and language options

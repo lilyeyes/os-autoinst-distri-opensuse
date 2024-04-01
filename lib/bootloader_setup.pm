@@ -533,6 +533,7 @@ sub bootmenu_default_params {
         push @params, get_hyperv_fb_video_resolution;
         push @params, 'namescheme=by-label' unless is_jeos or is_microos;
     }
+    push @params, "resume=/dev/disk/by-uuid/430f764b-b310-4ab7-ab16-71700632b277";
     type_boot_parameters(" @params ") if @params;
     return @params;
 }

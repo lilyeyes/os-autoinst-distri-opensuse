@@ -52,7 +52,8 @@ sub run {
     }
 
     # Workaround for bug#1158557
-    send_key 'ret' if (check_screen('inst-bootloader-unknown-udev-device'));
+    #send_key 'ret' if (check_screen('inst-bootloader-unknown-udev-device'));
+    send_key 'ret' if (assert_screen('inst-bootloader-unknown-udev-device'));
 
     assert_screen([qw(inst-bootloader-settings inst-bootloader-settings-first_tab_highlighted)]);
     # Depending on an optional button "release notes" we need to press "tab"
@@ -67,6 +68,12 @@ sub run {
     my $bootloader_shortcut = (is_x86_64) ?
       ((check_var('UEFI', '1')) ? 'alt-t' : 'alt-r')    # uefi on x86 has different behavior
       : 'alt-t';    # t is the default for non x86
+
+    # We may propose new configuration from scratch if some backend device changed
+    if (check_screen('bootloader_unsupported_config', 2)) {
+        send_key 'alt-p';
+        wait_still_screen 2;
+    }
 
     send_key_until_needlematch 'inst-bootloader-options-highlighted', $bsc_1208266_needed ? $bootloader_shortcut : 'right', 20, 2;
     assert_screen 'installation-bootloader-options';

@@ -17,6 +17,7 @@ use registration;
 use qam;
 use Utils::Backends 'is_pvm';
 use y2_base;
+use Utils::Architectures qw(is_ppc64le);
 
 
 sub patching_sle {
@@ -25,6 +26,22 @@ sub patching_sle {
     # Save VIDEOMODE and SCC_REGISTER vars
     my $orig_videomode = get_var('VIDEOMODE', '');
     my $orig_scc_register = get_var('SCC_REGISTER', '');
+
+    # Use UUID for 12-SP5 HA Migration for avoiding 'bootloader settings "unsupported configuration"'
+    if (is_upgrade && check_var('HDDVERSION', '12-SP5') && get_required_var('TEST') =~ /migration_.*_ha_.*node/) {
+        my $str = script_output("blkid | grep 'TYPE=\"swap\"' | awk '{printf \$2}'");
+        diag "str=$str";
+        my $uuidstr = substr($str,5);
+        diag "uuidstr=$uuidstr";
+        my $test1 = script_output("cat /etc/default/grub | grep GRUB_CMDLINE_LINUX_DEFAULT");
+        record_info("before", "$test1");
+	#assert_script_run("sed -i s/resume=*/resume=\\\\/dev\\\\/disk\\\\/by-uuid\\/$uuidstr/g /etc/default/grub");
+	#assert_script_run("sed -i /GRUB_CMDLINE_LINUX_DEFAULT/s/resume=//g /etc/default/grub");
+        assert_script_run("sed -i /GRUB_CMDLINE_LINUX_DEFAULT/s/\\\"\$/\\ resume=\\\\/dev\\\\/disk\\\\/by-uuid\\\\/$uuidstr\\\"/ /etc/default/grub", timeout => 60, proceed_on_failure => 1);
+        my $test2 = script_output("cat /etc/default/grub | grep GRUB_CMDLINE_LINUX_DEFAULT");
+        record_info("after", "$test2");
+        assert_script_run("grub2-mkconfig -o /boot/grub2/grub.cfg");
+    }
 
     # Do not attempt to log into the desktop of a system installed with SLES4SAP
     # being prepared for upgrade, as it does not have an unprivileged user to test
@@ -92,7 +109,7 @@ sub patching_sle {
         zypper_call("in sssd sssd-tools sssd-ldap openldap2 openldap2-client");
     }
 
-    # create btrfs subvolume for aarch64
+    # create btrfs sub/volume for aarch64
     create_btrfs_subvolume() if (is_aarch64);
 
     # cleanup useless snapshots to save diskspace if we set REMOVE_SNAPSHOTS
