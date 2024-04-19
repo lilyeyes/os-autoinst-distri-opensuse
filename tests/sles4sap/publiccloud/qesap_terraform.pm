@@ -177,6 +177,13 @@ sub run {
         }
     }
 
+    foreach my $instance (@$instances) {
+        my $ret = $instance->run_ssh_command(cmd => 'rpm -qi libnsl1', username => 'cloudadmin', proceed_on_failure => 1);
+        if ($ret) {
+            $instance->run_ssh_command(cmd => 'sudo zypper in libnsl1', username => 'cloudadmin');
+            record_soft_failure('workaround for bsc#1223133: zypper in libnsl1');
+        }
+    }
     $self->{instances} = $run_args->{instances} = $instances;
     $self->{instance} = $run_args->{my_instance} = $run_args->{instances}[0];
     $self->{provider} = $run_args->{my_provider} = $provider;    # Required for cleanup
