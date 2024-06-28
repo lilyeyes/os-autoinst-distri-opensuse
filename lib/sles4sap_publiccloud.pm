@@ -1232,6 +1232,7 @@ sub wait_for_idle {
     my ($self, %args) = @_;
     my $timeout = $args{timeout} // 240;
 
+    $self->run_cmd(cmd => 'zypper -n in ClusterTools2', timeout => 300);
     my $rc = $self->run_cmd(cmd => 'cs_wait_for_idle --sleep 5', timeout => $timeout, rc_only => 1, proceed_on_failure => 1);
     if ($rc == 124) {
         record_info("cs_wait_for_idle", "cs_wait_for_idle timed out after $timeout. Gathering info and retrying");
