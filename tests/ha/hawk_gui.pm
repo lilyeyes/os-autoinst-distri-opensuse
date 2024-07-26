@@ -57,7 +57,7 @@ sub run {
     # expect the console on tty2 which can lead to false positives as there is no
     # session there yet, so instead this goes through the displaymanager console to
     # login into the x11 session.
-    select_console 'displaymanager';
+    select_console('displaymanager', timeout => 90);
     $self->handle_displaymanager_login();
     x11_start_program('xterm');
     turn_off_gnome_screensaver;
