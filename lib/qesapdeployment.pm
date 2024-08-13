@@ -1572,7 +1572,8 @@ sub qesap_aws_get_mirror_tg {
     return qesap_aws_filter_query(
         cmd => 'describe-transit-gateways',
         filter => '"Name=tag-key,Values=Project" "Name=tag-value,Values=IBS Mirror"',
-        query => '"TransitGateways[].TransitGatewayId"'
+        query => '"TransitGateways[].TransitGatewayId"',
+        region => '"eu-central-1"'
     );
 }
 
