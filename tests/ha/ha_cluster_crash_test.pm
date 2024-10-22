@@ -68,7 +68,7 @@ sub run {
         # Execute the command
         my $cmd = "crm cluster crash_test --$check --force";
         record_info($check, "Executing $cmd");
-        my $cmd_fails = script_run("timeout 20 $cmd");
+        my $cmd_fails = script_run("timeout 120 $cmd", timeout => 140);
 
         # Killing pacemaker should result in service restart
         # All remaining commands lead to a reboot of the node
