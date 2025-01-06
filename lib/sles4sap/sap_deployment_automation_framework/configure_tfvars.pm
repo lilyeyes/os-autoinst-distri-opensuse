@@ -58,6 +58,10 @@ sub prepare_tfvars_file {
     );
     # Parameters required for defining DB VM image for SAP systems deployment
     set_db_image_parameters() if $args{deployment_type} eq 'sap_system';
+
+    # Parameters required for SAP testing scenarios: ScaleUp, ScaleOut, ASCS/ERS
+    set_sap_system_parameters() if $args{deployment_type} eq 'sap_system';
+
     # replace default vnet name with shorter one to avoid naming restrictions
     set_workload_vnet_name();
 
@@ -68,6 +72,40 @@ sub prepare_tfvars_file {
     replace_tfvars_variables($tfvars_file);
     upload_logs($tfvars_file, log_name => "$args{deployment_type}.tfvars.txt");
     return $tfvars_file;
+}
+
+# Set SAP_SYSTEM parameters
+sub set_sap_system_parameters
+{
+    my %params;
+
+    # For example: ENSA2_SETUP as an openQA Settings and it is set
+    if (get_var(ENSA2_SETUP)) {
+        # Set ENSA2 parameters
+        # Set "SAP Central Services" parameters as needed (like set_db_image_parameters() does)
+        $params{SDAF_SCS_SERVER_COUNT} = "1"; # set scs_server_count = "%SDAF_SCS_SERVER_COUNT%" in SAP_SYSTEM.tfvars
+        $params{SDAF_BOM_NAME} = "bar1"; # set bom_name = "%SDAF_BOM_NAME%" in SAP_SYSTEM.tfvars
+
+        # Set "other" parameters as needed
+        $params{SDAF_SCS_HIGH_AVAILABILITY} = "true"; # set scs_high_availability = "%SDAF_SCS_HIGH_AVAILABILITY%" in SAP_SYSTEM.tfvars
+
+    }
+    elsif (get_var(HANA)) {
+        $params{SDAF_BOM_NAME} = "bar2"; # set bom_name = "%SDAF_BOM_NAME%" in SAP_SYSTEM.tfvars
+    }
+    elsif (get_var(HA_CLUSTER)) {
+        $params{SADF_SCS_CLUSTER_TYPE} = "AFA"; # set scs_cluster_type = "%SADF_SCS_CLUSTER_TYPE%" in SAP_SYSTEM.tfvars
+    }
+    elsif (get_var(FOO)) {
+        $params{SDAF_FOO} = "foo"; # set foo = "%SADF_FOO%" in SAP_SYSTEM.tfvars
+    }
+    else {
+        record_info "Nothing needs to map";
+    }
+
+    foreach (keys(%params)) {
+        set_var($_, $params{$_});
+    }
 }
 
 =head2 replace_tfvars_variables
@@ -147,3 +185,4 @@ sub set_db_image_parameters {
         set_var($_, $params{$_});
     }
 }
+

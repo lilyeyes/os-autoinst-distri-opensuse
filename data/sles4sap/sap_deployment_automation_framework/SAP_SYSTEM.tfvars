@@ -284,10 +284,10 @@ sid = "%SAP_SID%"
 #########################################################################################
 
 # scs_server_count defines how many SCS servers to deploy
-scs_server_count = "0"
+scs_server_count = "%SDAF_SCS_SERVER_COUNT%"
 
 # scs_high_availability is a boolean flag controlling if SCS should be highly available
-scs_high_availability = false
+scs_high_availability = "%SDAF_SCS_HIGH_AVAILABILITY%"
 
 # scs_instance_number defines the instance number for SCS
 scs_instance_number = "01"
@@ -853,7 +853,7 @@ use_spn = true
 
 # bom_name is the name of the SAP Application Bill of Materials file
 
-bom_name = "HANA_2_00_075_v0001ms"
+bom_name = "%SDAF_BOM_NAME%"
 
 # configuration_settings is a dictionary containing values that will be persisted in sap-parameters.yaml
 #configuration_settings = {}
