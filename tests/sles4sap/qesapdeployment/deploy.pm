@@ -41,6 +41,7 @@ sub run {
     foreach my $host (@remote_ips) {
         die 'Timed out while waiting for ssh to be available in the CSP instances' if qesap_wait_for_ssh(host => $host) == -1;
     }
+    enter_cmd "export QESAP_SIM_RC=42";
     @ret = qesap_execute(
         cmd => 'ansible',
         cmd_options => join(' ', '--profile', '--junit', '/tmp/results/'),
@@ -73,6 +74,7 @@ sub post_fail_hook {
     qesap_cluster_logs();
     qesap_upload_logs();
     my $inventory = qesap_get_inventory(provider => get_required_var('PUBLIC_CLOUD_PROVIDER'));
+    enter_cmd "export QESAP_SIM_RC=''";
     qesap_execute(
         cmd => 'ansible',
         cmd_options => '-d',
