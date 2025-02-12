@@ -45,6 +45,7 @@ our @EXPORT = qw(
   load_os_env_variables
   sdaf_cleanup
   sdaf_execute_playbook
+  ansible_execute_command
   ansible_show_status
   playbook_settings
   $output_log_file
@@ -905,7 +906,7 @@ sub ansible_execute_command {
         "--inventory=$args{sap_sid}_hosts.yaml",
         '--module-name=shell');
 
-    return script_output(join(' ', @cmd, "--args=\"$args{command}\"", '2> /dev/null'));
+    return script_output(join(' ', @cmd, "--args=\"$args{command}\""));
 }
 
 =head2 playbook_settings
