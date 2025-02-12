@@ -132,6 +132,15 @@ Sets OpenQA parameters required for replacing tfvars template variables for data
 
 sub set_db_image_parameters {
     my %params;
+
+    #return;
+    #my $os_image_name;
+
+    #if (is_azure() && get_var('PUBLIC_CLOUD_IMAGE_LOCATION')) {
+    #    $os_image_name = $provider->get_blob_uri(get_var('PUBLIC_CLOUD_IMAGE_LOCATION'));
+    #    return;
+    #}
+
     # Parse image ID supplied by OpenQA parameter 'PUBLIC_CLOUD_IMAGE_ID'
     my @variable_names = qw(SDAF_DB_IMAGE_PUBLISHER SDAF_DB_IMAGE_OFFER SDAF_DB_IMAGE_SKU SDAF_DB_IMAGE_VERSION);
     # This maps a variable name from array @variable names to value from delimited 'PUBLIC_CLOUD_IMAGE_ID' parameter

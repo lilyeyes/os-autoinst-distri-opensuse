@@ -239,6 +239,9 @@ database_vm_image = {
   sku = "%SDAF_DB_IMAGE_SKU%",
   version = "%SDAF_DB_IMAGE_VERSION%",
   type = "%SDAF_DB_IMAGE_TYPE%"
+  #source_image_id = "/subscriptions/0f2a99ba-10c7-4dd8-83fe-90c313f48030/resourceGroups/openqa-upload/providers/Microsoft.Compute/galleries/test_image_gallery/images/SLE-15-SP7-AZURE-SAP-BYOS-X64-GEN2/versions/1.21.90",
+  #os_type = "LINUX",
+  #type = "custom"
 }
 
 # database_vm_zones is an optional list defining the availability zones to deploy the database servers
