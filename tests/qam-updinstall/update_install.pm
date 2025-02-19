@@ -192,6 +192,7 @@ sub run {
 
     select_serial_terminal;
 
+        record_info("Check-1 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
     # remove phub repos on qemu update ppc64le https://progress.opensuse.org/issues/162704
     if (get_var('BUILD') =~ /qemu/ && get_var('INCIDENT_REPO') !~ /Packagehub-Subpackages/) {
         my $version = get_var('VERSION');
@@ -201,6 +202,7 @@ sub run {
 
     my $zypper_version = script_output(q(rpm -q zypper|awk -F. '{print$2}'));
 
+        record_info("Check-2 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
     zypper_call(q{mr -d $(zypper lr | awk -F '|' '/NVIDIA/ {print $2}')}, exitcode => [0, 3]);
     zypper_call(q{mr -f $(zypper lr | awk -F '|' '/SLES15-SP4-15.4-0/ {print $2}')}, exitcode => [0, 3]) if get_var('FLAVOR') =~ /TERADATA/;
     zypper_call("ar -f http://dist.suse.de/ibs/SUSE/Updates/SLE-Live-Patching/12-SP3/" . get_var('ARCH') . "/update/ sle-module-live-patching:12-SP3::update") if is_sle('=12-SP3');
@@ -216,6 +218,7 @@ sub run {
         die 'Modules regex failed. Modules could not be extracted from repos variable.';
     }
     record_info('Modules', "@modules");
+        record_info("Check-3 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
 
     # Patch the SUT to a released state and reboot if reboot is needed;
     reboot_and_login if fully_patch_system == 102;
@@ -247,6 +250,7 @@ sub run {
     my @l3 = grep { ($bins{$_}->{supportstatus} eq 'l3') } keys %bins;
     my @unsupported = grep { ($bins{$_}->{supportstatus} eq 'unsupported') } keys %bins;
 
+        record_info("Check-4 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
     for my $patch (@patches) {
         my %patch_bins = %bins;
         my (@patch_l2, @patch_l3, @patch_unsupported, @update_conflicts);
@@ -302,6 +306,7 @@ sub run {
 
         disable_test_repositories($repos_count);
 
+        record_info("Check-5 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
         foreach my $b (@patch_l2, @patch_l3) {
             if (zypper_call("se -t package -x $b", exitcode => [0, 104]) eq '104') {
                 if (grep($b eq $_, @conflicts)) {
@@ -323,6 +328,7 @@ sub run {
             }
         }
 
+        record_info("Check-6 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
         # handle conflicting packages one by one
         if (@update_conflicts) {
             record_info 'Conflicts', "@update_conflicts";
@@ -359,6 +365,7 @@ sub run {
             }
         }
 
+        record_info("Check-7 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
         # Install released version of installable binaries.
         if (scalar(keys %installable)) {
             record_info 'Preinstall', 'Install affected packages before update repo is enabled';
@@ -372,13 +379,17 @@ sub run {
             }
         }
 
+        record_info("Check-8 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
         # Store the version of the installed binaries before the update.
         foreach (keys %patch_bins) {
             next if grep($_, @update_conflicts);
             $patch_bins{$_}->{old} = get_installed_bin_version($_, 'old');
         }
 
+        record_info("Check-9 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
         enable_test_repositories($repos_count);
+
+        record_info("Check-10 systemctl is-enabled sshd before patch", script_run("systemctl is-enabled sshd"));
 
         # Patch binaries already installed.
         my $patch_replacefiles = get_var('UPDATE_PATCH_ENABLE_REPLACEFILES') ? '--replacefiles' : '';
@@ -423,6 +434,7 @@ sub run {
             zypper_call("rm openssh-server-config-disallow-rootlogin", exitcode => [0, 104]);
         }
 
+        record_info("Check-11 systemctl is-enabled sshd after patch before reboot", script_run("systemctl is-enabled sshd"));
         record_info 'Reboot after patch', "system is bootable after patch $patch";
         reboot_and_login;
 
