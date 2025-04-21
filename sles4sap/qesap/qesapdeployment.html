@@ -2,16 +2,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>lib/qesapdeployment.pm</title>
+<title>lib/sles4sap/qesap/qesapdeployment.pm</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel='stylesheet' href='./style.css' />
+<link rel='stylesheet' href='../../style.css' />
 </head>
 
 <body>
 
 
 
-<ul id="index"><li><a href="./index.html"><i>&lt;= Back to file list</i></a></li>
+<ul id="index"><li><a href="../../index.html"><i>&lt;= Back to file list</i></a></li>
   <li><a href="#NAME">NAME</a></li>
   <li><a href="#COPYRIGHT">COPYRIGHT</a></li>
   <li><a href="#AUTHORS">AUTHORS</a></li>
@@ -33,7 +33,7 @@
           <li><a href="#qesap_get_roles_code-Get-the-Ansible-roles-code-from-github.com-sap-linuxlab-community.sles-for-sap">qesap_get_roles_code Get the Ansible roles code from github.com/sap-linuxlab/community.sles-for-sap</a></li>
           <li><a href="#qesap_yaml_replace">qesap_yaml_replace</a></li>
           <li><a href="#qesap_execute">qesap_execute</a></li>
-          <li><a href="#qesap_execute_conditional_retry">qesap_execute_conditional_retry</a></li>
+          <li><a href="#qesap_terraform_conditional_retry">qesap_terraform_conditional_retry</a></li>
           <li><a href="#qesap_file_find_strings">qesap_file_find_strings</a></li>
           <li><a href="#qesap_get_inventory">qesap_get_inventory</a></li>
           <li><a href="#qesap_get_nodes_number">qesap_get_nodes_number</a></li>
@@ -90,10 +90,9 @@
       <li><a href="#qesap_az_diagnostic_log">qesap_az_diagnostic_log</a></li>
       <li><a href="#qesap_terrafom_ansible_deploy_retry">qesap_terrafom_ansible_deploy_retry</a></li>
       <li><a href="#qesap_ansible_error_detection">qesap_ansible_error_detection</a></li>
-      <li><a href="#qesap_test_postfail">qesap_test_postfail</a></li>
     </ul>
   </li>
-</ul><h1>lib/qesapdeployment.pm</h1>
+</ul><h1>lib/sles4sap/qesap/qesapdeployment.pm</h1>
 
 <h1 id="NAME">NAME</h1>
 
@@ -221,12 +220,12 @@ Example:
 <h3 id="qesap_execute">qesap_execute</h3>
 
 <pre><code>qesap_execute(
-    cmd =&gt; &#39;terraform&#39;,
-    logname =&gt; &#39;terraform_destroy.log.txt&#39;
-    [, verbose =&gt; 1, cmd_options =&gt; $cmd_options] );
+    cmd =&gt; &#39;&lt;configure|terraform,|ansible&gt;&#39;,
+    logname =&gt; &#39;&lt;SOMENAME&gt;.log.txt&#39;
+    [, verbose =&gt; 1, cmd_options =&gt; &lt;cmd_options&gt;] );
 
 Example:
-    qesap_execute(cmd =&gt; &#39;terraform&#39;, cmd_options =&gt; &#39;-d&#39;)
+    qesap_execute(cmd =&gt; &#39;terraform&#39;, logname =&gt; &#39;terraform_destroy.log.txt&#39;, cmd_options =&gt; &#39;-d&#39;)
 result in:
     qesap.py terraform -d
 
@@ -251,7 +250,7 @@ This function is not expected to internally die, any failure has to be handled b
 <dd>
 
 </dd>
-<dt id="VERBOSE---activate-verbosity-in-qesap.py"><b>VERBOSE</b> - activate verbosity in qesap.py</dt>
+<dt id="VERBOSE---activate-verbosity-in-qesap.py.-0-is-no-verbosity-default-1-is-to-enable-verbosity"><b>VERBOSE</b> - activate verbosity in qesap.py. 0 is no verbosity (default), 1 is to enable verbosity</dt>
 <dd>
 
 </dd>
@@ -261,29 +260,19 @@ This function is not expected to internally die, any failure has to be handled b
 </dd>
 </dl>
 
-<h3 id="qesap_execute_conditional_retry">qesap_execute_conditional_retry</h3>
+<h3 id="qesap_terraform_conditional_retry">qesap_terraform_conditional_retry</h3>
 
-<pre><code>qesap_execute_conditional_retry(
-cmd =&gt; $qesap_script_cmd,
-error_list =&gt; [&#39;Fatal:&#39;],
-logname =&gt; &#39;somefile.txt&#39;
-[, verbose =&gt; 1s] );
+<pre><code>qesap_terraform_conditional_retry(
+    error_list =&gt; [&#39;Fatal:&#39;],
+    logname =&gt; &#39;somefile.txt&#39;
+    [, verbose =&gt; 1, cmd_options =&gt; &#39;--parallel 3&#39;, timeout =&gt; 1200, retries =&gt; 5, destroy =&gt; 1] );
 
-Execute qesap glue script commands. Check project documentation for available options:
-https://github.com/SUSE/qe-sap-deployment
-Test returns execution result, or dies in case of terraform apply/destroy failure</code></pre>
+Execute &#39;qesap.py ... teraform&#39; and eventually retry for some specific errors.
+Test returns execution result in same format of qesap_execute.</code></pre>
 
 <dl>
 
-<dt id="CMD---qesap.py-subcommand-to-run1"><b>CMD</b> - qesap.py subcommand to run</dt>
-<dd>
-
-</dd>
-<dt id="VERBOSE---activate-verbosity-in-qesap.py1"><b>VERBOSE</b> - activate verbosity in qesap.py</dt>
-<dd>
-
-</dd>
-<dt id="TIMEOUT---max-expected-execution-time-default-90sec1"><b>TIMEOUT</b> - max expected execution time, default 90sec</dt>
+<dt id="ERROR_LIST---list-of-error-strings-to-search-for-in-the-log-file.-If-any-is-found-it-enables-terraform-retry"><b>ERROR_LIST</b> - list of error strings to search for in the log file. If any is found, it enables terraform retry</dt>
 <dd>
 
 </dd>
@@ -291,15 +280,23 @@ Test returns execution result, or dies in case of terraform apply/destroy failur
 <dd>
 
 </dd>
+<dt id="CMD_OPTIONS---set-of-arguments-for-the-qesap.py-subcommand1"><b>CMD_OPTIONS</b> - set of arguments for the qesap.py subcommand</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---max-expected-execution-time-default-90sec1"><b>TIMEOUT</b> - max expected execution time, default 90sec</dt>
+<dd>
+
+</dd>
 <dt id="RETRIES---number-of-retries-in-case-of-expected-error"><b>RETRIES</b> - number of retries in case of expected error</dt>
 <dd>
 
 </dd>
-<dt id="ERROR_LIST---list-of-error-strings-to-search-for-in-the-log-file.-If-any-is-found-it-enables-terraform-retry"><b>ERROR_LIST</b> - list of error strings to search for in the log file. If any is found, it enables terraform retry</dt>
+<dt id="VERBOSE---activate-verbosity-in-qesap.py.-0-is-no-verbosity-default-1-is-to-enable-verbosity1"><b>VERBOSE</b> - activate verbosity in qesap.py. 0 is no verbosity (default), 1 is to enable verbosity</dt>
 <dd>
 
 </dd>
-<dt id="destroy_terraform---destroy-terraform-before-retrying-terraform-apply"><b>destroy_terraform</b> - destroy terraform before retrying terraform apply</dt>
+<dt id="DESTROY---destroy-terraform-before-retrying-terraform-apply"><b>DESTROY</b> - destroy terraform before retrying terraform apply</dt>
 <dd>
 
 </dd>
@@ -1251,25 +1248,6 @@ Return:
 <dl>
 
 <dt id="ERROR_LOG---error-log-filename1"><b>ERROR_LOG</b> - error log filename</dt>
-<dd>
-
-</dd>
-</dl>
-
-<h2 id="qesap_test_postfail">qesap_test_postfail</h2>
-
-<pre><code>qesap_test_postfail()
-
-Post fail tasks suitable for post_fail_hook of the test modules.
-This API is mainly designed for qesap regression test modules.</code></pre>
-
-<dl>
-
-<dt id="PROVIDER---cloud-provider-name-as-from-PUBLIC_CLOUD_PROVIDER-setting1"><b>PROVIDER</b> - cloud provider name as from PUBLIC_CLOUD_PROVIDER setting</dt>
-<dd>
-
-</dd>
-<dt id="NET_PEERING_ID---ID-of-the-network-peering-for-Azure-it-has-to-be-the-name-of-the-Resource-Group-of-the-mirror-for-AWS-it-has-to-be-the-something-different-from-an-empty-string-for-example-the-setting-about-the-IP-RANGE"><b>NET_PEERING_ID</b> - ID of the network peering, for Azure it has to be the name of the Resource Group of the mirror, for AWS it has to be the something different from an empty string, for example the setting about the IP RANGE.</dt>
 <dd>
 
 </dd>
