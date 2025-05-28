@@ -120,10 +120,18 @@ sub run {
 
     # State of SBD if shared storage SBD is used
     if (!get_var('USE_DISKLESS_SBD')) {
-        my $sbd_output = script_output("sbd -d \"$sbd_device\" list");
-        # Check if all the nodes have sbd started and ready
-        die "Unexpected node count in sdb list command output"
-          if (get_node_number != (my $clear_count = () = $sbd_output =~ /\sclear\s|\sclear$/g));
+            my $count = 5;
+            my $sbd_output =0;
+            my $clear_count = 0;
+            while ($count ne 0) {
+                $count--;
+                $sbd_output = script_output("sbd -d \"$sbd_device\" list");
+                # Check if all the nodes have sbd started and ready
+                die "Unexpected node count in sdb list command output"
+                  if (get_node_number != ($clear_count = () = $sbd_output =~ /\sclear\s|\sclear$/g) && $count == 0);
+                sleep 2;
+            }
+
     }
 
     # Check if the multicast port is correct (should be 5405 or 5407 by default)
