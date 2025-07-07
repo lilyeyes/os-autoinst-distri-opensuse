@@ -310,20 +310,44 @@ sub assign_defined_network {
 
     my @lease_files;
     my $lease_file;
+    my $ret;
+    my $count = 0;
+    my $flag = 0;
     record_info('NET assign', "Searching for free networks older than $args{networks_older_than} seconds");
     while (!$lease_file) {
+        $count++;
         @lease_files = list_expired_files($args{networks_older_than});
         record_info('Expired files', "Following expired leases found:\n" . join("\n", @lease_files));
         return unless @lease_files;
         # Taking random file from the list decreases the chance of two tests spending time checking same file.
         $lease_file = $lease_files[int(rand(@lease_files - 1))];
         # Check if network resource associated with chosen lease file exists.
-        return if deployer_peering_exists(addr_space => $lease_file . '/26', deployer_vnet_name => $args{deployer_vnet_name});
+        $ret = deployer_peering_exists(addr_space => $lease_file . '/26', deployer_vnet_name => $args{deployer_vnet_name});
+        record_info("RET=$ret");        
+        # Testing
+        if(!$ret && !$flag) {
+            record_info("1: $ret");        
+            $lease_file = 0;
+            next;
+	}
+        #
+        if($ret) {
+            record_info("2: $ret");        
+            $lease_file = 0;
+            if ($count > 48) {
+                record_info("Searched for $count times, return");        
+                return;
+            } else {
+                record_info("3: $ret");        
+                $flag = 1;
+                next;
+            }
+        }
+	# return if deployer_peering_exists(addr_space => $lease_file . '/26', deployer_vnet_name => $args{deployer_vnet_name});
 
         # Attempt to acquire network file lease (update modification time)
         # This will prevent other tests from spending time checking this file since it is already taken.
         return if !acquire_network_file_lease(network_lease_file => $lease_file);
-
     }
     return $lease_file . '/26';    # Add /26 suffix
 }

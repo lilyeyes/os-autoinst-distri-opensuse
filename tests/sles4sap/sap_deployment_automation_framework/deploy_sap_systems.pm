@@ -105,6 +105,7 @@ sub run {
 
     az_login();
 
+    die "testing";
     create_sap_systems_tfvars(workload_vnet_code => $workload_vnet_code, os_image => $os);
     sdaf_execute_deployment(deployment_type => 'sap_system', timeout => 3600);
 
