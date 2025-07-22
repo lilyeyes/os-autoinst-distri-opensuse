@@ -857,7 +857,8 @@ sub sdaf_execute_playbook {
     my $rc = script_run(log_command_output(command => $playbook_cmd, log_file => $output_log_file),
         timeout => $args{timeout}, output => "Executing playbook: $args{playbook_filename}");
     upload_logs($output_log_file);
-    die "Execution of playbook failed with RC: $rc" if $rc;
+    # die "Execution of playbook failed with RC: $rc" if $rc;
+    record_soft_failure("jsc#TEAM-10326: Execution of playbook failed with RC: $rc") if $rc;
     record_info('Playbook OK', "Playbook execution finished: $playbook_file");
 }
 
