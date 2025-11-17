@@ -141,6 +141,9 @@ sub run {
 
     my $cluster_name = get_cluster_name;
     my $drbd_rsc = 'drbd_passive';
+    # According to https://bugzilla.suse.com/show_bug.cgi?id=1247534#c23 osado need to be revised accordingly
+    # Replace "/dev/drbd_passive" with "/dev/drbd<minor>"
+    (my $dev = $drbd_rsc) =~ s/_.*/0/;
     my $drbd_rsc_file = "/etc/drbd.d/$drbd_rsc.res";
 
     # DRBD needs 2 nodes for the test, so we can easily
@@ -275,7 +278,7 @@ sub run {
         ensure_resource_running("ms_$drbd_rsc", ":[[:blank:]]*$node_01\[[:blank:]]*([Mm]aster|[Pp]romoted)\$");
 
         # Check device
-        check_device_available("/dev/$drbd_rsc");
+        check_device_available("/dev/$dev");
     }
     else {
         diag 'Wait until drbd resource is created/activated...';
@@ -297,7 +300,7 @@ sub run {
         ensure_resource_running("ms_$drbd_rsc", ":[[:blank:]]*$node_01\[[:blank:]]*([Mm]aster|[Pp]romoted)\$");
 
         # Check device
-        check_device_available("/dev/$drbd_rsc");
+        check_device_available("/dev/$dev");
     }
     else {
         diag 'Wait until drbd resource is restarted...';
@@ -326,7 +329,7 @@ sub run {
         ensure_resource_running("ms_$drbd_rsc", ":[[:blank:]]*$node_02\[[:blank:]]*([Mm]aster|[Pp]romoted)\$");
 
         # Check device
-        check_device_available("/dev/$drbd_rsc");
+        check_device_available("/dev/$dev");
     }
 
     # Wait for DRBD resrouce migration to be done
@@ -352,7 +355,7 @@ sub run {
         ensure_resource_running("ms_$drbd_rsc", ":[[:blank:]]*$node_01\[[:blank:]]*([Mm]aster|[Pp]romoted)\$");
 
         # Check device
-        check_device_available("/dev/$drbd_rsc");
+        check_device_available("/dev/$dev");
     }
 
     # Wait for DRBD resrouce migration to be done
