@@ -140,7 +140,9 @@ sub run {
     write_tag('drbd_passive') and return 1 if is_not_maintenance_update('drbd');
 
     my $cluster_name = get_cluster_name;
-    my $drbd_rsc = 'drbd_passive';
+    # According to https://bugzilla.suse.com/show_bug.cgi?id=1247534#c23 osado need to be revised accordingly
+    # Replace "/dev/drbd_passive" with "/dev/drbd<minor>"
+    my $drbd_rsc = 'drbd0';
     my $drbd_rsc_file = "/etc/drbd.d/$drbd_rsc.res";
 
     # DRBD needs 2 nodes for the test, so we can easily
