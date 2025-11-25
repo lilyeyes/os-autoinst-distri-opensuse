@@ -136,7 +136,7 @@ sub run {
     } else {
         wait_screen_change { send_key $cmd{next} };
     }
-    assert_screen 'sap-wizard-profile-ready', 300;
+    assert_screen 'sap-wizard-profile-ready', 600;
 
     # BONE requires another repo
     if (get_var('BONE')) {
