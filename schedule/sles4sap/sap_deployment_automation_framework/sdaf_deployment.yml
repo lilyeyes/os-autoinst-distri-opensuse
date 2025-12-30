@@ -14,10 +14,11 @@ schedule:
   - '{{ibsm_setup}}'
   - sles4sap/sap_deployment_automation_framework/execute_playbooks
   - sles4sap/sap_deployment_automation_framework/prepare_ssh_config
-  - sles4sap/redirection_tests/check_hana_database
-  - sles4sap/redirection_tests/check_ensa2_cluster
-  - sles4sap/redirection_tests/check_netweaver
+  #- sles4sap/redirection_tests/check_hana_database
+  #- sles4sap/redirection_tests/check_ensa2_cluster
+  #- sles4sap/redirection_tests/check_netweaver
   - '{{ibsm_verify}}'
+  sles4sap/sap_deployment_automation_framework/cleanup
 
 conditional_schedule:
   ibsm_setup:

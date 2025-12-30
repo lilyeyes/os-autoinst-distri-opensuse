@@ -20,6 +20,7 @@ use sles4sap::sap_deployment_automation_framework::deployment;
 use sles4sap::console_redirection;
 use serial_terminal qw(select_serial_terminal);
 use testapi;
+use sles4sap::ibsm qw(ibsm_network_peering_azure_create);
 
 sub test_flags {
     return {fatal => 1};

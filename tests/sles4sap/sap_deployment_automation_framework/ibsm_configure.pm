@@ -85,20 +85,17 @@ die_message
         my $data = $peering_data->{$peering_type};
         # There should not be an existing peering with the same name - might be leftover.
         die "Network peering '$data->{peering_name}' already exists" if $data->{exists};
+    }
 
-        record_info('Peer create', "Peering name: $data->{peering_name}\n
-        Resource_group: $data->{source_resource_group}\n
-        Source VNET: $data->{source_vnet}\n
-        Target VNET: $data->{target_vnet}");
+    # Create two way network peering
+    ibsm_network_peering_azure_create(
+        ibsm_rg => $peering_data->{ibsm_peering}{source_resource_group},
+        sut_rg => $peering_data->{workload_peering}{source_resource_group},
+        name_prefix => '');
 
-        # Create two way network peering
-        az_network_peering_create(
-            name => $data->{peering_name},
-            source_rg => $data->{source_resource_group},
-            source_vnet => $data->{source_vnet},
-            target_rg => $data->{target_resource_group},
-            target_vnet => $data->{target_vnet}
-        );
+    # Check the two way network peering
+    for my $peering_type (keys %{$peering_data}) {
+        my $data = $peering_data->{$peering_type};
 
         die("Peering '$data->{peering_name}' not detected after creation")
           unless az_network_peering_exists(

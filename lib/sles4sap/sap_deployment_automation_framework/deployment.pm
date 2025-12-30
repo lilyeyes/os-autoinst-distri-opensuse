@@ -1010,7 +1010,7 @@ sub playbook_settings {
         {playbook_filename => 'playbook_00_validate_parameters.yaml', timeout => 120},
         # Base operating system configuration
         {playbook_filename => 'playbook_01_os_base_config.yaml'});
-
+=pod
     # DB installation pulls in SAP specific configuration
     if (grep /db_install/, @{$args{components}}) {
         # SAP-specific operating system configuration
@@ -1047,7 +1047,7 @@ sub playbook_settings {
         # Configure ENSA cluster
         push @playbooks, {playbook_filename => 'playbook_06_00_acss_registration.yaml', timeout => 1800};
     }
-
+=cut
     return (\@playbooks);
 }
 

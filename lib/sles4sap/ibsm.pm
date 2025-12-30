@@ -197,7 +197,7 @@ sub ibsm_network_peering_azure_delete {
         record_info('Peering deletion SUCCESS', 'The peering was successfully destroyed');
         return;
     }
-    die("Peering destruction FAIL: There may be leftover peering connections, please check - jsc#7487");
+    record_info('Peering destruction FAIL: There may be leftover peering connections, please check - jsc#7487', result => 'fail');
 }
 
 1;
