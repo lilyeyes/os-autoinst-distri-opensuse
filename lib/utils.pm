@@ -3085,7 +3085,7 @@ sub define_secret_variable {
     script_run("set -a");
     script_run("read -sp '$var_name: ' $var_name", 0);
     type_password($var_value . "\n");
-    script_run("set +a");
+    script_run("set +a; sleep 100");
 }
 
 =head2 ping_size_check

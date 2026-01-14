@@ -216,6 +216,7 @@ sub check_credentials {
     );
 
     for my $key (keys %credentials) {
+        define_secret_variable('SECRET_VARIABLE', $credentials{$key});
         my @secret_ids = @{az_keyvault_secret_list(
                 vault_name => get_required_var('SDAF_DEPLOYER_KEY_VAULT'), query => "\"[?ends_with(name, \'$query{$key}\')].id\"")};
         croak "Multiple or no secrets found: \n" . join("\n", @secret_ids) unless @secret_ids == 1;
