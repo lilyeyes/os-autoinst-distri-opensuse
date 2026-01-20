@@ -424,6 +424,7 @@ Returns the result of deleting: 0 succeeded, 1 failed.
 =cut
 
 sub destroy_orphaned_peerings {
+    # Remove orphans: cleaning up orphaned peerings from deployer
     my $query = q|[?peeringState=='Disconnected' && tags.| . no_cleanup_tag() .
       q| == null].{peering_name:name, workload_resource_group:remoteVirtualNetwork.resourceGroup}|;
     my $deployer_resource_group = get_required_var('SDAF_DEPLOYER_RESOURCE_GROUP');
@@ -437,6 +438,7 @@ sub destroy_orphaned_peerings {
     );
     my @deleted_peerings;
 
+    record_info('Remove orphans', 'Cleaning up orphaned peerings from deployer');
     my $result = 0;
     for my $peering (@{$disconnected_peerings}) {
         # Do not delete peering if group it belongs to still exists
@@ -452,8 +454,57 @@ sub destroy_orphaned_peerings {
         }
         push @deleted_peerings, $peering->{peering_name};
     }
+    record_info('Peer clean', "Following orphaned peerings from deployer were deleted:\n" . join("\n", @deleted_peerings) . "\n");
 
-    record_info('Peer clean', "Following orphaned peerings were deleted:\n" . join("\n", @deleted_peerings) . "\n");
+    # Remove orphans: cleaning up orphaned peerings from IBSm
+    $query = q|[?peeringState=='Disconnected' && starts_with(name, 'SDAF-')]| . q|.{peering_name:name, peering_state:peeringState}|;
+    my $ibsm_resource_group = get_required_var('IBSM_RG');
+    $vnet_name = ${az_network_vnet_get(resource_group => $ibsm_resource_group)}[0];
+    # This makes list of peerings in `DISCONNECTED` state and name prefix is 'SDAF-'
+    $disconnected_peerings = az_network_peering_list(
+        resource_group => $ibsm_resource_group,
+        vnet => $vnet_name,
+        query => $query
+    );
+    @deleted_peerings = ();
+
+    # Lists VMs in cloud which contain SDAF 'deployment_id' tag and displays only tag values => list of all deployments
+    my @cloud_deployments = @{az_vm_list(
+            resource_group => $deployer_resource_group, query => '[?tags.deployment_id].tags.deployment_id')};
+
+    record_info('Remove orphans', 'Cleaning up orphaned peerings from IBSm');
+    for my $peering (@{$disconnected_peerings}) {
+        # Do not delete peering if resource prefix is not 'SDAF-' && postfix is not '-<deployment_id'
+        if ($peering !~ /^SDAF-.*-\d+$/) {
+            record_info('Note', "$peering does not belong to SDAF");
+            next;
+        }
+
+        # Do not delete peering if deployment it belongs to still exists
+        # Lists VMs in cloud which contain 'deployment_id' tag and displays only tag values => list of all deployments
+        my @cloud_deployments = @{az_vm_list(
+                resource_group => $deployer_resource_group, query => '[?tags.deployment_id].tags.deployment_id')};
+        my ($id) = $peering =~ /(\d+)$/;
+        if (grep(/^$id$/, @cloud_deployments)) {
+            record_info('Note', "deployment which $peering belongs to still exists");
+            next;
+        }
+	#testing !!!!!!!!!!!!!
+        record_info("testing");
+        next;
+        my $ret = az_network_peering_delete(
+            resource_group => $ibsm_resource_group,
+            vnet => $vnet_name,
+            name => $peering->{peering_name});
+        if ($ret) {
+            $result = 1;
+            record_info("Issue found: deleting $vnet_name failed, continue to delete other peerings");
+            next;
+        }
+        push @deleted_peerings, $peering->{peering_name};
+    }
+    record_info('Peer clean', "Following orphaned peerings from IBSm were deleted:\n" . join("\n", @deleted_peerings) . "\n");
+
     return $result;
 }
 
