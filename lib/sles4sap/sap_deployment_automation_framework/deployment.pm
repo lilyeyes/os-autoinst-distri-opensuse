@@ -151,9 +151,9 @@ sub export_credentials {
         get_var('_SECRET_AZURE_SDAF_TENANT_ID')) {
         record_info('Credentials', 'Credentials defined by OpenQA settings');
         $data = {
-            client_id => get_required_var('_SECRET_AZURE_SDAF_APP_ID'),
-            client_secret => get_required_var('_SECRET_AZURE_SDAF_APP_PASSWORD'),
-            tenant_id => get_required_var('_SECRET_AZURE_SDAF_TENANT_ID'),
+            client_id => get_required_var('TEST_AZURE_SDAF_APP_ID'),
+            client_secret => get_required_var('TEST_AZURE_SDAF_APP_PPWW'),
+            tenant_id => get_required_var('TEST_AZURE_SDAF_TENANT_ID'),
             # Keeping the same OpenQA setting name consistent with other deployments
             subscription_id => get_required_var('PUBLIC_CLOUD_AZURE_SUBSCRIPTION_ID'),
         };
@@ -285,12 +285,13 @@ L<https://learn.microsoft.com/en-us/azure/sap/automation/deploy-control-plane?ta
 sub az_login {
     # This is to remove telemetry messages which can mangle JSON outputs.
     assert_script_run(
-        'az config set core.survey_message=false core.collect_telemetry=no --only-show-errors --output json'
+        'az config set core.survey_message=false core.collect_telemetry=no --only-show-errors --output json', timeout => 120
     );
     my $credentials = export_credentials();
     my $login_cmd = 'while ! az login --service-principal -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} -t ${ARM_TENANT_ID} -o none 1>/dev/null 2>&1; do sleep 10; done';
     assert_script_run($login_cmd, timeout => 30);
     record_info('AZ login', "Subscription id: $credentials->{subscription_id}");
+    assert_script_run("cat /tmp/az_login_tmp");
     return ($credentials->{subscription_id});
 }
 
