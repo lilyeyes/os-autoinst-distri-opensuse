@@ -93,7 +93,7 @@ sub run {
     my $project_root_dir = "/tmp/$project_name";
     my $log_dir = "$project_root_dir/logs";
     my $test_dir = "$project_root_dir/tests";
-    my $sut_ssh_key_path = '/home/azureadm/.ssh/sut_id_rsa';
+    my $sut_ssh_key_path = "$sut_sid_private_key_path";
 
     git_clone(get_required_var('HLQR_GIT_REPO'),
         branch => $project_branch,
@@ -154,7 +154,7 @@ file_content
     # Fetch SUT SSH key from keyvault
     my $workload_rg = get_workload_resource_group(deployment_id => find_deployment_id());
     my $workload_key_vault = ${az_keyvault_list(resource_group => $workload_rg)}[0];
-    sdaf_ssh_key_from_keyvault(key_vault => $workload_key_vault, target_file => $sut_ssh_key_path);
+    sdaf_ssh_key_from_keyvault(query => 'sid-sshkey', key_vault => $workload_key_vault, target_file => $sut_ssh_key_path);
 
     my $pabot_cmd = join(' ', 'pabot',
         '--name "Patch and reboot all hosts"',
