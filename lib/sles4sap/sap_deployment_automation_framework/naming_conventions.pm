@@ -460,3 +460,5 @@ sub get_ibsm_peering_name {
     my (%args) = @_;
     return "SDAF-$args{source_vnet}-$args{target_vnet}";
 }
+
+1;

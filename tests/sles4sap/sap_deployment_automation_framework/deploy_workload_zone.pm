@@ -42,7 +42,7 @@ sub run {
     # This time is calculated by multiplying max terraform runtime with number of retries done. Result is increased by
     # additional 30m buffer.
     # Tests will therefore attempt to assign only networks which are older than max terraform runtime.
-    my $terraform_retries = 3;
+    my $terraform_retries = 1;
     my $terraform_timeout = 2600;
     my $networks_older_than = $terraform_retries * $terraform_timeout + 1800;
 

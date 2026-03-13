@@ -197,7 +197,7 @@ that usually is string B<true> or B<false>.
 
 sub az_group_exists(%args) {
     croak "Missing mandatory argument: 'name'" unless $args{name};
-    return script_output("az group exists --resource-group $args{name}", quiet => $args{quiet});
+    return script_output("az group exists --resource-group $args{name} 2> >(grep -Ev 'FutureWarning|Launching flake|self.' >&2)", quiet => $args{quiet});
 }
 
 =head2 az_network_vnet_create
@@ -326,7 +326,7 @@ sub az_network_vnet_get(%args) {
     croak("Argument < resource_group > missing") unless $args{resource_group};
     $args{query} //= '[].name';
 
-    my $az_cmd = join(' ', 'az network vnet list',
+    my $az_cmd = join(' ', 'az network vnet list 2>/dev/null',
         '-g', $args{resource_group},
         "--query \"$args{query}\"",
         '-o json');
@@ -897,7 +897,7 @@ sub az_vm_list(%args) {
     $args{query} //= '[].name';
 
     my $az_cmd = join(' ',
-        'az vm list',
+        'az vm list 2>/dev/null',
         "-g $args{resource_group}",
         "--query \"$args{query}\"",
         '-o json');
@@ -1173,7 +1173,7 @@ sub az_nic_create(%args) {
     foreach (qw(resource_group name vnet subnet nsg pubip_name)) {
         croak("Argument < $_ > missing") unless $args{$_}; }
 
-    assert_script_run(join(' ', 'az network nic create',
+    assert_script_run(join(' ', 'az network nic create 2>/dev/null',
             '--resource-group', $args{resource_group},
             '--name', $args{name},
             '--vnet-name', $args{vnet},
@@ -1583,7 +1583,7 @@ sub az_network_peering_list(%args) {
         croak("Argument < $_ > missing") unless $args{$_}; }
     $args{query} //= '[].name';
 
-    my $az_cmd = join(' ', 'az network vnet peering list',
+    my $az_cmd = join(' ', 'az network vnet peering list 2> >(grep -Ev "FutureWarning|Launching flake|self." >&2)',
         '--resource-group', $args{resource_group},
         '--vnet-name', $args{vnet},
         "--query \"$args{query}\"",
@@ -1936,7 +1936,7 @@ sub az_storage_blob_list(%args) {
     $args{query} //= '[].name';
 
     my $az_cmd = join(' ',
-        'az storage blob list',
+        'az storage blob list 2> >(grep -Ev "FutureWarning|Launching flake|self." >&2)',
         '--only-show-errors',
         "--container-name $args{container_name}",
         "--account-name $args{storage_account_name}",
