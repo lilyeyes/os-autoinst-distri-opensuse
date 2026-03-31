@@ -15,6 +15,7 @@ use utils 'zypper_call';
 sub run {
     select_console 'root-console';
     assert_script_run "zypper lr --uri | tee /dev/$serialdev";
+    assert_script_run "zypper dup", timeout => 1800;
 }
 
 1;

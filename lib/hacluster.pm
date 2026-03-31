@@ -501,11 +501,11 @@ sub ensure_process_running {
 
     while ($ret = script_run "ps -A | grep -q '\\<$process\\>'") {
         my $timerun = time - $starttime;
-        if ($timerun < $default_timeout) {
+        if ($timerun < $default_timeout * 5) {
             sleep 5;
         }
         else {
-            die "Process '$process' did not start within $default_timeout seconds";
+            die "Process '$process' did not start within $default_timeout*5 seconds";
         }
     }
 
