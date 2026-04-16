@@ -34,6 +34,7 @@
       <li><a href="#zypper_call">zypper_call</a></li>
       <li><a href="#zypper_enable_install_dvd">zypper_enable_install_dvd</a></li>
       <li><a href="#zypper_ar">zypper_ar</a></li>
+      <li><a href="#zypper_version_cmp">zypper_version_cmp</a></li>
       <li><a href="#fully_patch_system">fully_patch_system</a></li>
       <li><a href="#ssh_fully_patch_system">ssh_fully_patch_system</a></li>
       <li><a href="#minimal_patch_system">minimal_patch_system</a></li>
@@ -306,6 +307,14 @@ remain: boolean
 
 <pre><code>zypper_ar(&#39;http://dist.nue.suse.com/ibs/QA:/Head/SLE-15-SP1&#39;, name =&gt; &#39;qa-head);
 zypper_ar(&#39;https://download.opensuse.org/repositories/devel:/kubic/openSUSE_Tumbleweed/devel:kubic.repo&#39;, no_gpg_check =&gt; 1, priority =&gt; 90);</code></pre>
+
+<h2 id="zypper_version_cmp">zypper_version_cmp</h2>
+
+<pre><code>zypper_version_cmp($ver1, $ver2);</code></pre>
+
+<p>Compare the versions supplied as arguments and tell whether version1 is older or newer than version2 or the two version strings match.</p>
+
+<p>The default output is in human-friendly form. If --terse global option is used, the result is an integer number, negative/positive if version1 is older/newer than version2, zero if they match.</p>
 
 <h2 id="fully_patch_system">fully_patch_system</h2>
 
@@ -849,7 +858,7 @@ script_finish_io(exitcode =&gt; [12]);</code></pre>
 
 <pre><code>remove_efiboot_entry(boot_entry =&gt; &#39;entry&#39;);</code></pre>
 
-<p>Remove provided efiboot entry name by its corresponding boot number.</p>
+<p>Remove provided efiboot entry name by its corresponding boot number. All entries with this name will be removed.</p>
 
 <h2 id="empty_usb_disks">empty_usb_disks</h2>
 
