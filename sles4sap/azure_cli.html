@@ -1358,7 +1358,7 @@ identifiers for Azure resources.</code></pre>
 <pre><code>az_storage_blob_upload(
     container_name=&gt;&#39;somecontainer&#39;,
     storage_account_name=&gt;&#39;storageaccount&#39;,
-    file=&gt;&#39;somefilename&#39; [, timeout=&gt;42]);</code></pre>
+    file=&gt;&#39;somefilename&#39; [, timeout=&gt;42, name=&gt;&#39;blob_name.txt&#39;]);</code></pre>
 
 <p>Uploads file to a storage container.</p>
 
@@ -1376,6 +1376,10 @@ identifiers for Azure resources.</code></pre>
 <dd>
 
 </dd>
+<dt id="name-Target-blob-filename.-Optional"><b>name</b> Target blob filename. (Optional)</dt>
+<dd>
+
+</dd>
 <dt id="timeout-Timeout-for-az-command.-Default:-90s"><b>timeout</b> Timeout for az command. Default: 90s</dt>
 <dd>
 
@@ -1388,7 +1392,8 @@ identifiers for Azure resources.</code></pre>
     container_name       =&gt; &#39;somecontainer&#39;,
     storage_account_name =&gt; &#39;storageaccount&#39;,
     blob_name            =&gt; &#39;somefilename&#39;,
-    lease_duration       =&gt; 60
+    lease_duration       =&gt; 60,
+    timeout =&gt; 120
 );</code></pre>
 
 <p>Acquire a lease for a storage blob. The function returns a UUID which is then required to modify the file and gives the UUID owner exclusive rights.</p>
@@ -1421,6 +1426,10 @@ identifiers for Azure resources.</code></pre>
 <dd>
 
 </dd>
+<dt id="timeout-az-command-timeout:-default-of-wait_serial-https:-open.qa-api-testapi-script_output"><b>timeout</b> az command timeout: default of `wait_serial` https://open.qa/api/testapi/#script_output</dt>
+<dd>
+
+</dd>
 <dt id="lease_duration-Specifies-the-duration-of-the-lease-in-seconds.-A-non-infinite-lease-can-be-between-15-and-60-seconds.-A-value-of--1-indicates-an-infinite-lease.-Default:--1-infinite"><b>lease_duration</b> Specifies the duration of the lease in seconds. A non-infinite lease can be between 15 and 60 seconds. A value of -1 indicates an infinite lease. Default: -1 (infinite).</dt>
 <dd>
 
@@ -1431,7 +1440,8 @@ identifiers for Azure resources.</code></pre>
 
 <pre><code>az_storage_blob_list(
     container_name=&gt;&#39;somecontainer&#39;,
-    storage_account_name=&gt;&#39;storageaccount&#39; [, query=&gt;&#39;[].name&#39;]
+    storage_account_name=&gt;&#39;storageaccount&#39; [, query=&gt;&#39;[].name&#39;],
+    timeout =&gt; 120
 );</code></pre>
 
 <p>List information about storage blob(s) specified by <b>storage_account_name</b>, <b>container_name</b> and <b>query</b>.</p>
@@ -1447,6 +1457,10 @@ identifiers for Azure resources.</code></pre>
 
 </dd>
 <dt id="query-Query-in-jmespath-format"><b>query</b> Query in jmespath format</dt>
+<dd>
+
+</dd>
+<dt id="timeout-az-command-timeout:-default-of-wait_serial-https:-open.qa-api-testapi-script_output1"><b>timeout</b> az command timeout: default of `wait_serial` https://open.qa/api/testapi/#script_output</dt>
 <dd>
 
 </dd>
