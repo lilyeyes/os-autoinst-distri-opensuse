@@ -51,7 +51,8 @@ sub run {
     # Try to join the HA cluster through first node
     assert_script_run "ping -c1 $node_to_join";
     record_info 'cluster_join', "Joining $node_to_join";
-    enter_cmd "crm cluster join -yc $node_to_join ; echo cluster-join-finished-\$?";
+    sleep 1;
+    enter_cmd "crm cluster join -yc $node_to_join ; echo cluster-join-finished-\$?", max_interval => 50;
     wait_for_password_prompt(timeout => $join_timeout);
     type_password;
     send_key 'ret';
