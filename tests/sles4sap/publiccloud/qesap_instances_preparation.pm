@@ -94,9 +94,11 @@ sub run {
             my %ssh_args = (username => 'cloudadmin');
             my @overrides = ('Banner none', 'AllowTcpForwarding yes');
 
-            $instance->ssh_assert_script_run(
+            $instance->ssh_script_retry(
                 cmd => "sudo test -f $sshd_config",
                 fail_message => "$sshd_config not found on $instance->{instance_id}",
+                retry => 6,
+                delay => 10,
                 %ssh_args);
 
             my $head = $instance->ssh_script_output(cmd => "sudo head -n" . scalar(@overrides) . " $sshd_config", %ssh_args);
